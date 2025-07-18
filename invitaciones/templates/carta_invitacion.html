@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+
+{% block title %}Invitación - {{ invitacion.nombre_invitado }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <!-- Header con foto de preboda -->
+        <div class="relative mb-8">
+            <div class="h-64 md:h-80 bg-gradient-to-r from-green-600 to-green-800 rounded-t-3xl overflow-hidden relative">
+                {% if config_boda.foto_preboda_1 %}
+                    <img src="{{ config_boda.foto_preboda_1 }}" alt="Foto de preboda" class="w-full h-full object-cover">
+                {% endif %}
+                <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+                <!-- Aquí puedes agregar la foto de preboda -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="text-center text-white">
+                        <h1 class="text-4xl md:text-6xl font-script mb-2">
+                            {% if config_boda %}
+                                {{ config_boda.nombre_novio }} & {{ config_boda.nombre_novia }}
+                            {% else %}
+                                José & Jeovana
+                            {% endif %}
+                        </h1>
+                        <p class="text-xl md:text-2xl font-light">
+                            {% if config_boda %}
+                                {{ config_boda.fecha_boda_default|date:"d \d\e F \d\e Y" }}
+                            {% else %}
+                                21 de febrero de 2026
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invitación principal -->
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Historia de amor -->
+            <div class="px-8 md:px-12 py-10 text-center border-b border-green-100">
+                <h2 class="text-3xl md:text-4xl font-script text-green-800 mb-6">Una historia de amor</h2>
+                <p class="text-gray-700 leading-relaxed text-lg max-w-3xl mx-auto">
+                    {% if config_boda %}
+                        {{ config_boda.historia_amor }}
+                    {% else %}
+                        Hace dos años, éramos dos desconocidos cuyos caminos se cruzaron por el destino. 
+                        Desde aquella primera cita llena de risas y emociones, nuestra historia ha sido 
+                        un viaje lleno de amor y sueños compartidos.
+                    {% endif %}
+                </p>
+                <div class="mt-8 p-6 bg-green-50 rounded-2xl">
+                    <p class="text-2xl text-green-800 font-medium">
+                        Nos llena de alegría, invitarte a compartir con nosotros este día tan especial.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Información de padres -->
+            <div class="px-8 md:px-12 py-10 bg-gradient-to-br from-green-50 to-white">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl md:text-3xl font-script text-green-800 mb-4">
+                        Con el favor de Dios y el apoyo de nuestros queridos padres
+                    </h3>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                    <!-- Padres del novio -->
+                    <div class="bg-white p-6 rounded-2xl shadow-lg border border-green-100">
+                        <h4 class="text-xl font-semibold text-green-800 mb-4 text-center">Padres del novio</h4>
+                        <div class="space-y-2 text-center">
+                            <p class="text-gray-700 font-medium">
+                                {% if config_boda %}{{ config_boda.padre_novio_1 }}{% else %}José Longino Mendoza Avilés{% endif %}
+                            </p>
+                            <p class="text-gray-700 font-medium">
+                                {% if config_boda %}{{ config_boda.padre_novio_2 }}{% else %}Vanessa Vianeth Valdés Sánchez{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Padres de la novia -->
+                    <div class="bg-white p-6 rounded-2xl shadow-lg border border-green-100">
+                        <h4 class="text-xl font-semibold text-green-800 mb-4 text-center">Padres de la novia</h4>
+                        <div class="space-y-2 text-center">
+                            <p class="text-gray-700 font-medium">
+                                {% if config_boda %}{{ config_boda.padre_novia_1 }}{% else %}Gregorio Quirós Caballero{% endif %}
+                            </p>
+                            <p class="text-gray-700 font-medium">
+                                {% if config_boda %}{{ config_boda.padre_novia_2 }}{% else %}Jeovana del Carmen Espinosa Montenegro{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalles de la boda -->
+            <div class="px-8 md:px-12 py-10">
+                <h3 class="text-3xl font-script text-green-800 text-center mb-8">Los detalles de la boda</h3>
+                
+                <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-8">
+                    <div class="text-center p-6 bg-green-50 rounded-2xl">
+                        <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-calendar-alt text-white text-2xl"></i>
+                        </div>
+                        <h4 class="text-xl font-semibold text-green-800 mb-2">Fecha</h4>
+                        <p class="text-lg text-gray-700">{{ invitacion.fecha_boda|date:"d \d\e F \d\e Y"|default:"21 de febrero de 2026" }}</p>
+                    </div>
+                    
+                    <div class="text-center p-6 bg-green-50 rounded-2xl">
+                        <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-clock text-white text-2xl"></i>
+                        </div>
+                        <h4 class="text-xl font-semibold text-green-800 mb-2">Hora</h4>
+                        <p class="text-lg text-gray-700">{{ invitacion.hora_boda|time:"H:i"|default:"06:00" }} p.m</p>
+                    </div>
+                </div>
+
+                <!-- Ubicación -->
+                <div class="bg-white border border-green-200 rounded-2xl p-6 mb-8">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-map-marker-alt text-white text-2xl"></i>
+                        </div>
+                        <h4 class="text-xl font-semibold text-green-800 mb-2">Ubicación</h4>
+                        <p class="text-lg text-gray-700 mb-4">{{ invitacion.ubicacion_nombre|default:"Parroquia Sagrado Corazón de Jesús" }}</p>
+                        <p class="text-gray-600 mb-4">{{ invitacion.ubicacion_direccion|default:"Av. 9a Oeste, David, Provincia de Chiriquí 507" }}</p>
+                        
+                        {% if invitacion.ubicacion_maps_url %}
+                            <a href="{{ invitacion.ubicacion_maps_url }}" target="_blank" 
+                               class="inline-block bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition-colors duration-300">
+                                <i class="fas fa-external-link-alt mr-2"></i>Abrir en Google Maps
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Mapa embebido -->
+                    <div class="rounded-xl overflow-hidden h-64 shadow-inner">
+                        {% if invitacion.ubicacion_maps_url %}
+                            <!-- Extraer el embed URL de Google Maps -->
+                            <iframe 
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.7556106994896!2d-79.53384692573394!3d9.357411790790947!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8faca8f1deb1c525%3A0x597cf86df988d472!2sCol%C3%B3n%2C%20Panam%C3%A1!5e0!3m2!1ses!2s!4v1732191234567!5m2!1ses!2s"
+                                width="100%" 
+                                height="100%" 
+                                style="border:0;" 
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade">
+                            </iframe>
+                        {% else %}
+                            <!-- Mapa por defecto de Colón, Panamá -->
+                            <iframe 
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.7556106994896!2d-79.53384692573394!3d9.357411790790947!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8faca8f1deb1c525%3A0x597cf86df988d472!2sCol%C3%B3n%2C%20Panam%C3%A1!5e0!3m2!1ses!2s!4v1732191234567!5m2!1ses!2s"
+                                width="100%" 
+                                height="100%" 
+                                style="border:0;" 
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade">
+                            </iframe>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Código de vestimenta -->
+            <div class="px-8 md:px-12 py-10 bg-gradient-to-br from-green-50 to-white">
+                <h3 class="text-3xl font-script text-green-800 text-center mb-6">Código de vestimenta</h3>
+                <div class="max-w-2xl mx-auto text-center bg-white p-8 rounded-2xl shadow-lg border border-green-100">
+                    <p class="text-lg text-gray-700 mb-4">¡Ropa formal, pero con estilo!</p>
+                    <p class="text-xl font-semibold text-green-800 mb-4">
+                        El <span class="bg-gray-100 px-2 py-1 rounded">BLANCO</span> está reservado para la novia.
+                    </p>
+                    <p class="text-lg text-gray-700">
+                        Ven elegante y con ganas de celebrar el amor. 💕
+                    </p>
+                </div>
+            </div>
+
+            <!-- Invitación VIP -->
+            <div class="px-8 md:px-12 py-10 bg-gradient-to-r from-green-600 to-green-800 text-white">
+                <div class="text-center">
+                    <h3 class="text-3xl font-script mb-6">Invitación VIP</h3>
+                    <div class="bg-white bg-opacity-20 backdrop-blur rounded-2xl p-8 max-w-2xl mx-auto">
+                        <h4 class="text-2xl font-semibold mb-4">{{ invitacion.nombre_invitado }}</h4>
+                        <p class="text-lg mb-6">
+                            Para celebrar este día tan especial junto a ti, te hemos reservado 
+                            <span class="text-3xl font-bold mx-2">{{ invitacion.numero_invitados }}</span>
+                            lugar{{ invitacion.numero_invitados|pluralize:"es" }} 🌹✨
+                        </p>
+                        
+                        {% if invitacion.estado == 'pendiente' %}
+                            <div class="space-y-4">
+                                <h5 class="text-xl font-semibold">Avísanos si puedes venir</h5>
+                                <a href="{% url 'responder_invitacion' invitacion.id %}" 
+                                   class="inline-block bg-white text-green-800 px-8 py-3 rounded-full font-semibold text-lg hover:bg-green-50 transition-colors duration-300 shadow-lg">
+                                    <i class="fas fa-heart mr-2"></i>Confirmar Asistencia
+                                </a>
+                            </div>
+                        {% elif invitacion.estado == 'aceptada' %}
+                            <div class="space-y-4">
+                                <div class="bg-green-500 bg-opacity-30 border border-green-300 rounded-2xl p-4">
+                                    <i class="fas fa-check-circle text-2xl mb-2"></i>
+                                    <p class="text-lg">¡Gracias por confirmar tu asistencia!</p>
+                                </div>
+                                <a href="{% url 'mostrar_qr' invitacion.id %}" 
+                                   class="inline-block bg-white text-green-800 px-8 py-3 rounded-full font-semibold text-lg hover:bg-green-50 transition-colors duration-300 shadow-lg">
+                                    <i class="fas fa-qrcode mr-2"></i>Ver tu Código QR
+                                </a>
+                            </div>
+                        {% elif invitacion.estado == 'rechazada' %}
+                            <div class="bg-yellow-500 bg-opacity-30 border border-yellow-300 rounded-2xl p-4">
+                                <i class="fas fa-heart-broken text-2xl mb-2"></i>
+                                <p class="text-lg">Lamentamos que no puedas acompañarnos ese día</p>
+                                <p>¡Esperamos verte pronto!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer romántico -->
+            <div class="px-8 md:px-12 py-8 bg-green-50 text-center">
+                <p class="text-gray-600 italic">
+                    "El amor verdadero nunca tiene un final feliz, porque el amor verdadero nunca termina"
+                </p>
+                <div class="mt-4 flex justify-center space-x-2">
+                    <span class="text-green-600">💚</span>
+                    <span class="text-green-600">🤍</span>
+                    <span class="text-green-600">💚</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&display=swap');
+
+.font-script {
+    font-family: 'Dancing Script', cursive;
+}
+
+.bg-gradient-to-br {
+    background: linear-gradient(to bottom right, var(--tw-gradient-stops));
+}
+
+.bg-gradient-to-r {
+    background: linear-gradient(to right, var(--tw-gradient-stops));
+}
+</style>
+{% endblock %}

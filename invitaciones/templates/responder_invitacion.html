@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Asistencia{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 py-8">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-script text-green-800 mb-4">Confirma tu Asistencia</h1>
+            <p class="text-lg text-gray-600">
+                Hola <strong>{{ invitacion.nombre_invitado }}</strong>, 
+                por favor confirma si podrás acompañarnos
+            </p>
+        </div>
+
+        <!-- Formulario -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 border border-green-100">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Información de la invitación -->
+                <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Detalles de tu Invitación</h3>
+                    <div class="space-y-2">
+                        <p><strong>Invitados permitidos:</strong> {{ invitacion.numero_invitados }}</p>
+                        {% if invitacion.numero_invitados > 1 %}
+                            <p class="text-sm text-gray-600">
+                                Incluye {{ invitacion.numero_invitados|add:"-1" }} acompañante{{ invitacion.numero_invitados|add:"-1"|pluralize }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Respuesta principal -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        ¿Podrás asistir a la boda? *
+                    </label>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-green-300 cursor-pointer">
+                            <input type="radio" name="respuesta" value="aceptada" class="mr-3" required>
+                            <div>
+                                <div class="font-medium text-green-700">🎉 ¡Sí, estaré ahí!</div>
+                                <div class="text-sm text-gray-600">Confirmo mi asistencia</div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-red-300 cursor-pointer">
+                            <input type="radio" name="respuesta" value="rechazada" class="mr-3" required>
+                            <div>
+                                <div class="font-medium text-red-700">😔 No podré asistir</div>
+                                <div class="text-sm text-gray-600">Lamentablemente no podré acompañarlos</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Número de acompañantes (solo si acepta) -->
+                {% if invitacion.numero_invitados > 1 %}
+                <div id="acompanantes-section" class="hidden">
+                    <label for="numero_acompanantes" class="block text-sm font-medium text-gray-700 mb-2">
+                        ¿Cuántos acompañantes traerás?
+                    </label>
+                    <select name="numero_acompanantes" id="numero_acompanantes" 
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        {% for i in "0123456789"|make_list %}
+                            {% if forloop.counter0 < invitacion.numero_invitados %}
+                                <option value="{{ forloop.counter0 }}">{{ forloop.counter0 }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <p class="text-sm text-gray-600 mt-1">
+                        Máximo {{ invitacion.numero_invitados|add:"-1" }} acompañante{{ invitacion.numero_invitados|add:"-1"|pluralize }}
+                    </p>
+                </div>
+                {% endif %}
+
+                <!-- Mensaje personal -->
+                <div>
+                    <label for="mensaje_personal" class="block text-sm font-medium text-gray-700 mb-2">
+                        Mensaje para los novios (opcional)
+                    </label>
+                    <textarea name="mensaje_personal" id="mensaje_personal" rows="4"
+                              placeholder="Comparte tus felicitaciones o cualquier mensaje especial..."
+                              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"></textarea>
+                </div>
+
+                <!-- Botón de envío -->
+                <div class="text-center pt-6">
+                    <button type="submit" 
+                            class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-full transition-colors duration-300 shadow-lg hover:shadow-xl">
+                        <i class="fas fa-heart mr-2"></i>Confirmar Respuesta
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="text-center mt-8 text-gray-600">
+            <p class="text-sm">
+                Tu respuesta es importante para nosotros. 
+                ¡Esperamos verte en nuestro día especial!
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mostrar/ocultar sección de acompañantes
+document.addEventListener('DOMContentLoaded', function() {
+    const radioButtons = document.querySelectorAll('input[name="respuesta"]');
+    const acompanantesSection = document.getElementById('acompanantes-section');
+    
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'aceptada') {
+                acompanantesSection.classList.remove('hidden');
+            } else {
+                acompanantesSection.classList.add('hidden');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

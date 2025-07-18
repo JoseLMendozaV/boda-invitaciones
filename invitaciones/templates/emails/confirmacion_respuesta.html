@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Respuesta</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 30px;
+            text-align: center;
+        }
+        .status {
+            font-size: 24px;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .asistira {
+            background-color: #f6ffed;
+            color: #52c41a;
+            border: 2px solid #52c41a;
+        }
+        .no-asistira {
+            background-color: #fff2f0;
+            color: #ff4d4f;
+            border: 2px solid #ff4d4f;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>¡Respuesta Confirmada!</h1>
+            <div>✅</div>
+        </div>
+        
+        <div class="content">
+            <p>Hola <strong>{{ invitacion.nombre_invitado }}</strong>,</p>
+            
+            <p>Hemos recibido tu respuesta para la boda de:</p>
+            <h2>{{ boda.nombre_novia }} & {{ boda.nombre_novio }}</h2>
+            
+            <div class="status {% if invitacion.estado == 'aceptada' %}asistira{% else %}no-asistira{% endif %}">
+                {% if invitacion.estado == 'aceptada' %}
+                    🎉 ¡Confirmas tu asistencia!
+                    {% if invitacion.numero_acompanantes_confirmados > 0 %}
+                        <br>Con {{ invitacion.numero_acompanantes_confirmados }} acompañante{{ invitacion.numero_acompanantes_confirmados|pluralize }}
+                    {% endif %}
+                {% else %}
+                    😔 No podrás asistir
+                {% endif %}
+            </div>
+            
+            {% if invitacion.mensaje_personal %}
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <strong>Tu mensaje:</strong><br>
+                "{{ invitacion.mensaje_personal }}"
+            </div>
+            {% endif %}
+            
+            <p>
+                <strong>Fecha:</strong> {{ boda.fecha|date:"d/m/Y" }}<br>
+                <strong>Hora:</strong> {{ boda.hora|time:"H:i" }}<br>
+                <strong>Lugar:</strong> {{ boda.direccion }}
+            </p>
+            
+            {% if invitacion.estado == 'aceptada' %}
+            <p style="color: #52c41a; font-weight: bold;">
+                ¡Te esperamos con mucha ilusión!
+            </p>
+            {% else %}
+            <p style="color: #666;">
+                Lamentamos que no puedas acompañarnos, pero te tendremos presente en este día especial.
+            </p>
+            {% endif %}
+        </div>
+        
+        <div class="footer">
+            <p>Gracias por confirmar tu respuesta</p>
+            <div>💕</div>
+        </div>
+    </div>
+</body>
+</html>

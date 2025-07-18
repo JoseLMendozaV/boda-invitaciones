@@ -1,0 +1,185 @@
+<!-- invitaciones/templates/emails/recordatorio_email.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recordatorio - Invitación de Boda</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: normal;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .reminder-text {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .names {
+            text-align: center;
+            font-size: 32px;
+            color: #d97706;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .invitation-text {
+            text-align: center;
+            font-size: 18px;
+            line-height: 1.6;
+            margin: 30px 0;
+        }
+        .details {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .detail-item {
+            margin: 15px 0;
+            font-size: 16px;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #d97706;
+        }
+        .button {
+            display: block;
+            width: 250px;
+            margin: 30px auto;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .urgency {
+            background-color: #fee2e2;
+            border: 2px solid #ef4444;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #666;
+            font-size: 14px;
+        }
+        .clock {
+            color: #f59e0b;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📢 Recordatorio Importante</h1>
+            <div class="clock">⏰</div>
+        </div>
+        
+        <div class="content">
+            <p class="invitation-text">
+                Hola <strong>{{ invitacion.nombre_invitado }}</strong>,
+            </p>
+            
+            <div class="reminder-text">
+                <strong>⚠️ ¡Aún no hemos recibido tu respuesta!</strong><br>
+                Nos encantaría saber si podrás acompañarnos en nuestro día especial.
+            </div>
+            
+            <p class="invitation-text">
+                Te recordamos que estás invitado/a a la boda de:
+            </p>
+            
+            <div class="names">
+                {{ boda.nombre_novia }} & {{ boda.nombre_novio }}
+            </div>
+            
+            <div class="details">
+                <div class="detail-item">
+                    <span class="detail-label">📅 Fecha:</span>
+                    {{ boda.fecha|date:"d/m/Y" }}
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">⏰ Hora:</span>
+                    {{ boda.hora|time:"H:i" }}
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">📍 Lugar:</span>
+                    {{ boda.direccion }}
+                </div>
+                
+                {% if invitacion.numero_invitados > 1 %}
+                <div class="detail-item">
+                    <span class="detail-label">👥 Invitados:</span>
+                    Puedes traer {{ invitacion.numero_invitados|add:"-1" }} acompañante{{ invitacion.numero_invitados|add:"-1"|pluralize }}
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if boda.fecha_limite_respuesta %}
+            <div class="urgency">
+                <strong>⏳ Fecha límite para confirmar:</strong><br>
+                {{ boda.fecha_limite_respuesta|date:"d/m/Y" }}
+            </div>
+            {% endif %}
+            
+            <p class="invitation-text">
+                Por favor, tómate un momento para confirmar tu asistencia. Solo tomará unos segundos y nos ayudará mucho con la organización.
+            </p>
+            
+            <a href="{{ responder_url }}" class="button">
+                Confirmar Asistencia Ahora
+            </a>
+            
+            <p style="text-align: center; margin-top: 30px; font-size: 14px; color: #666;">
+                Si ya respondiste y recibes este recordatorio, por favor ignóralo. 
+                Puede haber un retraso en nuestro sistema.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>¡Esperamos tu respuesta pronto!</p>
+            <div class="clock">⏰</div>
+            <p style="margin-top: 10px; font-size: 12px; color: #999;">
+                Este es un recordatorio automático. Tu privacidad es importante para nosotros.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

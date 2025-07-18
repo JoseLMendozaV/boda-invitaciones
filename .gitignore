@@ -1,0 +1,57 @@
+cat > .gitignore << 'EOF'
+# Entorno virtual
+venv/
+env/
+ENV/
+
+# Base de datos local
+db.sqlite3
+*.db
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Archivos de Django
+*.log
+local_settings.py
+media/
+
+# Archivos de configuración sensibles
+.env
+.env.local
+.env.production
+.env.staging
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos estáticos recopilados (para producción)
+staticfiles/
+static_collected/
+
+# Archivos de cobertura de tests
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# Archivos de pytest
+.pytest_cache/
+
+# Archivos de migrations de desarrollo (opcional)
+# invitaciones/migrations/
+
+# Archivos temporales
+*.tmp
+*.bak
+EOF

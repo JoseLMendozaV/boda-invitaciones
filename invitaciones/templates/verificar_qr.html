@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+
+{% block title %}Verificar QR{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-12 px-4">
+    <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-green-600 rounded-full shadow-lg mb-4">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-green-800 mb-2">Verificar Código QR</h1>
+            <p class="text-green-700">Escanea o ingresa el código para verificar la invitación</p>
+        </div>
+
+        <!-- Formulario Principal -->
+        <div class="bg-white rounded-2xl shadow-xl border border-green-100 overflow-hidden">
+            <div class="bg-green-600 px-6 py-4">
+                <h2 class="text-xl font-semibold text-white flex items-center">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Verificación de Invitación
+                </h2>
+            </div>
+
+            <div class="p-8">
+                <form id="verificar-form" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- Campo QR -->
+                    <div>
+                        <label for="codigo_qr" class="block text-sm font-medium text-gray-700 mb-2">Código QR</label>
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                class="w-full pl-10 pr-14 py-3 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                                id="codigo_qr" 
+                                name="codigo_qr" 
+                                placeholder="Escanea o ingresa el código QR aquí..."
+                                required
+                                autocomplete="off"
+                            >
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                                </svg>
+                            </div>
+                            <button 
+                                type="button" 
+                                id="camera-btn"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-green-400 hover:text-green-600"
+                                title="Usar cámara"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="text-sm text-green-600 mt-1">Escaneo automático - Solo apunta la cámara al código QR</p>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="flex gap-4">
+                        <button 
+                            type="submit" 
+                            id="verificar-btn"
+                            class="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transition-all duration-200 shadow-lg"
+                        >
+                            <span id="btn-text" class="flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Verificar Código
+                            </span>
+                        </button>
+                        
+                        <button 
+                            type="button" 
+                            id="limpiar-btn"
+                            class="px-6 py-3 border border-green-300 text-green-700 rounded-lg font-medium hover:bg-green-50 transition-all duration-200"
+                        >
+                            Limpiar
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Área de resultados -->
+                <div id="resultado" class="mt-6 hidden"></div>
+            </div>
+        </div>
+
+        <!-- Modal de Cámara -->
+        <div id="camera-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+                <div class="bg-green-600 px-6 py-4 rounded-t-2xl flex items-center justify-between">
+                    <h3 class="text-xl font-semibold text-white">Escanear QR</h3>
+                    <button type="button" id="close-camera" class="text-white hover:text-green-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div class="relative mb-4">
+                        <video 
+                            id="camera-video" 
+                            class="w-full rounded-lg bg-gray-900"
+                            autoplay
+                            playsinline
+                            muted
+                            style="aspect-ratio: 1/1; object-fit: cover;"
+                        ></video>
+                        
+                        <!-- Overlay de escaneo -->
+                        <div class="absolute inset-0 pointer-events-none">
+                            <div class="absolute inset-0 bg-black bg-opacity-40 rounded-lg"></div>
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-green-500 rounded-lg animate-pulse">
+                                <div class="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-green-500"></div>
+                                <div class="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-green-500"></div>
+                                <div class="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-green-500"></div>
+                                <div class="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-green-500"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <p class="text-sm text-green-600 mb-4" id="scan-status">
+                            Detección automática activada - Apunta al código QR
+                        </p>
+                        <button 
+                            type="button" 
+                            id="cancel-camera"
+                            class="px-6 py-2 border border-green-300 text-green-700 rounded-lg hover:bg-green-50"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Variables principales
+    const form = document.getElementById('verificar-form');
+    const resultadoDiv = document.getElementById('resultado');
+    const verificarBtn = document.getElementById('verificar-btn');
+    const btnText = document.getElementById('btn-text');
+    const codigoInput = document.getElementById('codigo_qr');
+    const cameraBtn = document.getElementById('camera-btn');
+    const cameraModal = document.getElementById('camera-modal');
+    const cameraVideo = document.getElementById('camera-video');
+    const scanStatus = document.getElementById('scan-status');
+    
+    let currentStream = null;
+    let scanningInterval = null;
+    let isScanning = false;
+
+    // Funciones de UI
+    function mostrarCargando() {
+        verificarBtn.disabled = true;
+        verificarBtn.classList.add('opacity-50');
+        btnText.innerHTML = '<div class="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>Verificando...';
+    }
+
+    function restaurarEstado() {
+        verificarBtn.disabled = false;
+        verificarBtn.classList.remove('opacity-50');
+        btnText.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Verificar Código';
+    }
+
+    function mostrarResultado(data) {
+        resultadoDiv.classList.remove('hidden');
+        const bgColor = data.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
+        const iconColor = data.success ? 'text-green-600' : 'text-red-600';
+        const textColor = data.success ? 'text-green-800' : 'text-red-800';
+        
+        resultadoDiv.innerHTML = `
+            <div class="${bgColor} border rounded-xl p-6">
+                <div class="flex items-start">
+                    <div class="w-10 h-10 ${data.success ? 'bg-green-100' : 'bg-red-100'} rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${data.success ? 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' : 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'}"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <h3 class="text-lg font-semibold ${textColor} mb-2">${data.success ? '¡Verificación exitosa!' : 'Error en la verificación'}</h3>
+                        <p class="${textColor.replace('800', '700')}">${data.mensaje}</p>
+                        ${data.success ? `
+                            <div class="mt-3 space-y-2">
+                                <div class="bg-white rounded p-3 border border-green-100">
+                                    <strong>Invitado:</strong> ${data.invitado}
+                                </div>
+                                <div class="bg-white rounded p-3 border border-green-100">
+                                    <strong>Número de invitados:</strong> ${data.numero_invitados}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+        resultadoDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function mostrarNotificacion(mensaje, tipo) {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium ${tipo === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+        notification.textContent = mensaje;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Función de escaneo QR
+    function escanearQR() {
+        if (!isScanning || !cameraVideo.videoWidth) return;
+
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = cameraVideo.videoWidth;
+        canvas.height = cameraVideo.videoHeight;
+        context.drawImage(cameraVideo, 0, 0);
+        
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+        
+        if (code) {
+            isScanning = false;
+            clearInterval(scanningInterval);
+            scanStatus.textContent = '¡QR detectado! Procesando...';
+            
+            codigoInput.value = code.data;
+            cerrarCamara();
+            mostrarNotificacion('¡Código QR detectado automáticamente!', 'success');
+            
+            setTimeout(() => form.dispatchEvent(new Event('submit')), 500);
+        }
+    }
+
+    // Funciones de cámara
+    async function iniciarCamara() {
+        try {
+            if (!navigator.mediaDevices?.getUserMedia) {
+                throw new Error('Cámara no soportada en este navegador');
+            }
+
+            currentStream = await navigator.mediaDevices.getUserMedia({
+                video: { 
+                    facingMode: 'environment',
+                    width: { ideal: 640 },
+                    height: { ideal: 640 }
+                }
+            }).catch(() => 
+                navigator.mediaDevices.getUserMedia({ video: true })
+            );
+
+            cameraVideo.srcObject = currentStream;
+            await new Promise(resolve => {
+                cameraVideo.onloadedmetadata = () => {
+                    cameraVideo.play();
+                    resolve();
+                };
+            });
+
+            cameraModal.classList.remove('hidden');
+            isScanning = true;
+            scanningInterval = setInterval(escanearQR, 200);
+            
+        } catch (error) {
+            mostrarNotificacion('Error al acceder a la cámara: ' + error.message, 'error');
+        }
+    }
+
+    function cerrarCamara() {
+        isScanning = false;
+        if (scanningInterval) clearInterval(scanningInterval);
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+            currentStream = null;
+        }
+        cameraModal.classList.add('hidden');
+        cameraVideo.srcObject = null;
+    }
+
+    // Event listeners
+    cameraBtn.addEventListener('click', iniciarCamara);
+    document.getElementById('close-camera').addEventListener('click', cerrarCamara);
+    document.getElementById('cancel-camera').addEventListener('click', cerrarCamara);
+    
+    cameraModal.addEventListener('click', e => {
+        if (e.target === cameraModal) cerrarCamara();
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !cameraModal.classList.contains('hidden')) {
+            cerrarCamara();
+        }
+    });
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const codigo = codigoInput.value.trim();
+        if (!codigo) {
+            mostrarNotificacion('Por favor ingresa un código QR', 'error');
+            return;
+        }
+        
+        mostrarCargando();
+        
+        fetch('{% url "verificar_qr" %}', {
+            method: 'POST',
+            body: new FormData(this),
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            restaurarEstado();
+            mostrarResultado(data);
+            
+            if (data.success) {
+                setTimeout(() => {
+                    codigoInput.value = '';
+                    codigoInput.focus();
+                }, 3000);
+            }
+        })
+        .catch(error => {
+            restaurarEstado();
+            mostrarNotificacion('Error de conexión', 'error');
+        });
+    });
+
+    document.getElementById('limpiar-btn').addEventListener('click', () => {
+        codigoInput.value = '';
+        resultadoDiv.classList.add('hidden');
+        codigoInput.focus();
+    });
+
+    // Limpiar al cambiar input
+    codigoInput.addEventListener('input', function() {
+        if (this.value.length === 0) {
+            resultadoDiv.classList.add('hidden');
+        }
+    });
+
+    // Cleanup
+    window.addEventListener('beforeunload', cerrarCamara);
+    
+    // Focus inicial
+    codigoInput.focus();
+});
+</script>
+{% endblock %}

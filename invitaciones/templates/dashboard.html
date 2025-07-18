@@ -1,0 +1,578 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Gestión de Invitaciones{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header del Dashboard -->
+        <div class="mb-8">
+            <div class="bg-white rounded-3xl shadow-xl p-8 border border-green-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-4xl font-script text-green-800 mb-2">Dashboard de la Boda</h1>
+                        <p class="text-gray-600 text-lg">Gestiona todas tus invitaciones desde aquí</p>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="text-right">
+                            <div class="text-3xl text-green-600 mb-2">💒</div>
+                            <p class="text-sm text-gray-500">21 de febrero, 2026</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas principales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+            <!-- Total Invitaciones -->
+            <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl p-6 text-white transform hover:scale-105 transition-transform duration-300 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm font-medium uppercase tracking-wide">Total</p>
+                        <p class="text-3xl font-bold">{{ total_invitaciones }}</p>
+                        <p class="text-blue-100 text-sm">Invitaciones</p>
+                    </div>
+                    <div class="bg-blue-400 bg-opacity-30 rounded-full p-3">
+                        <i class="fas fa-envelope text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aceptadas -->
+            <div class="bg-gradient-to-br from-green-500 to-green-700 rounded-2xl p-6 text-white transform hover:scale-105 transition-transform duration-300 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm font-medium uppercase tracking-wide">Confirmadas</p>
+                        <p class="text-3xl font-bold">{{ aceptadas }}</p>
+                        <p class="text-green-100 text-sm">Asistirán</p>
+                    </div>
+                    <div class="bg-green-400 bg-opacity-30 rounded-full p-3">
+                        <i class="fas fa-check-circle text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pendientes -->
+            <div class="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-6 text-white transform hover:scale-105 transition-transform duration-300 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-yellow-100 text-sm font-medium uppercase tracking-wide">Pendientes</p>
+                        <p class="text-3xl font-bold">{{ pendientes }}</p>
+                        <p class="text-yellow-100 text-sm">Sin responder</p>
+                    </div>
+                    <div class="bg-yellow-400 bg-opacity-30 rounded-full p-3">
+                        <i class="fas fa-clock text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verificadas -->
+            <div class="bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl p-6 text-white transform hover:scale-105 transition-transform duration-300 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-100 text-sm font-medium uppercase tracking-wide">Llegaron</p>
+                        <p class="text-3xl font-bold">{{ verificadas }}</p>
+                        <p class="text-purple-100 text-sm">En la boda</p>
+                    </div>
+                    <div class="bg-purple-400 bg-opacity-30 rounded-full p-3">
+                        <i class="fas fa-user-check text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NUEVA ESTADÍSTICA: Emails enviados -->
+            <div class="bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl p-6 text-white transform hover:scale-105 transition-transform duration-300 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-pink-100 text-sm font-medium uppercase tracking-wide">Emails</p>
+                        <p class="text-3xl font-bold">{{ emails_enviados }}</p>
+                        <p class="text-pink-100 text-sm">Enviados</p>
+                    </div>
+                    <div class="bg-pink-400 bg-opacity-30 rounded-full p-3">
+                        <i class="fas fa-paper-plane text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NUEVA SECCIÓN: Alertas y notificaciones -->
+        {% if invitaciones_sin_email or recordatorios_pendientes %}
+        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-400 p-6 rounded-r-lg mb-8 shadow-md">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-yellow-400 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-lg font-medium text-yellow-800">Notificaciones</h3>
+                    <div class="mt-2 text-sm text-yellow-700 space-y-1">
+                        {% if invitaciones_sin_email %}
+                        <p>• {{ invitaciones_sin_email }} invitaciones no han recibido email de confirmación</p>
+                        {% endif %}
+                        {% if recordatorios_pendientes %}
+                        <p>• {{ recordatorios_pendientes }} invitados necesitan recordatorio (sin respuesta por más de 7 días)</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Progreso visual -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-green-100">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Progreso de Confirmaciones</h3>
+            <div class="space-y-4">
+                <!-- Barra de confirmadas -->
+                <div>
+                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                        <span>Confirmadas</span>
+                        <span>{{ aceptadas }}/{{ total_invitaciones }} ({{ porcentaje_confirmadas }}%)</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-500" 
+                             style="width: {{ porcentaje_confirmadas }}%"></div>
+                    </div>
+                </div>
+                
+                <!-- Barra de verificadas -->
+                <div>
+                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                        <span>Llegaron a la boda</span>
+                        <span>{{ verificadas }}/{{ aceptadas }} ({{ porcentaje_verificadas }}%)</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-gradient-to-r from-purple-400 to-purple-600 h-3 rounded-full transition-all duration-500" 
+                             style="width: {{ porcentaje_verificadas }}%"></div>
+                    </div>
+                </div>
+
+                <!-- NUEVA BARRA: Emails enviados -->
+                <div>
+                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                        <span>Emails enviados</span>
+                        <span>{{ emails_enviados }}/{{ total_invitaciones }} ({{ porcentaje_emails }}%)</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-gradient-to-r from-pink-400 to-rose-500 h-3 rounded-full transition-all duration-500" 
+                             style="width: {{ porcentaje_emails }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acciones rápidas MEJORADAS -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <a href="{% url 'crear_invitacion' %}" class="group">
+                <div class="bg-white rounded-2xl p-6 shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                    <div class="text-center">
+                        <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors">
+                            <i class="fas fa-plus text-2xl text-green-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Nueva Invitación</h3>
+                        <p class="text-gray-600 text-sm">Crea una nueva invitación para tus invitados</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{% url 'verificar_qr' %}" class="group">
+                <div class="bg-white rounded-2xl p-6 shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                    <div class="text-center">
+                        <div class="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors">
+                            <i class="fas fa-qrcode text-2xl text-purple-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Verificar QR</h3>
+                        <p class="text-gray-600 text-sm">Escanea códigos QR en la entrada</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- NUEVA ACCIÓN: Enviar recordatorios -->
+            <div class="group cursor-pointer" onclick="enviarRecordatorios()">
+                <div class="bg-white rounded-2xl p-6 shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                    <div class="text-center">
+                        <div class="bg-orange-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-200 transition-colors">
+                            <i class="fas fa-bell text-2xl text-orange-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Recordatorios</h3>
+                        <p class="text-gray-600 text-sm">Enviar recordatorios a pendientes</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="group cursor-pointer" onclick="exportarDatos()">
+                <div class="bg-white rounded-2xl p-6 shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                    <div class="text-center">
+                        <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
+                            <i class="fas fa-download text-2xl text-blue-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Exportar Datos</h3>
+                        <p class="text-gray-600 text-sm">Descarga la lista de invitados</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de invitaciones MEJORADA -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-green-100">
+            <div class="bg-gradient-to-r from-green-600 to-green-800 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-semibold text-white">Lista de Invitaciones</h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-green-500 bg-opacity-30 px-3 py-1 rounded-full text-green-100 text-sm">
+                            {{ total_invitaciones }} total
+                        </span>
+                        <!-- NUEVO: Botón para enviar emails masivos -->
+                        <button onclick="enviarEmailsMasivos()" 
+                                class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-full text-white text-sm transition-colors">
+                            <i class="fas fa-envelope mr-2"></i>Emails Masivos
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="rounded">
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invitado</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invitados</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Llegada</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for invitacion in invitaciones %}
+                        <tr class="hover:bg-gray-50 transition-colors duration-200">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <input type="checkbox" class="invitacion-checkbox rounded" 
+                                       value="{{ invitacion.id }}" onchange="updateSelectedCount()">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                        <span class="text-green-600 font-semibold">{{ invitacion.nombre_invitado|first|upper }}</span>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ invitacion.nombre_invitado }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ invitacion.email }}</div>
+                                {% if invitacion.telefono %}
+                                    <div class="text-sm text-gray-500">{{ invitacion.telefono }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <i class="fas fa-users text-gray-400 mr-2"></i>
+                                    <span class="text-sm text-gray-900">{{ invitacion.numero_invitados }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if invitacion.estado == 'aceptada' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check-circle mr-1"></i> Confirmada
+                                    </span>
+                                {% elif invitacion.estado == 'rechazada' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-times-circle mr-1"></i> Rechazada
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        <i class="fas fa-clock mr-1"></i> Pendiente
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <!-- NUEVA COLUMNA: Estado del email -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if invitacion.email_enviado %}
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <i class="fas fa-paper-plane mr-1"></i> Enviado
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                        <i class="fas fa-envelope mr-1"></i> Pendiente
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if invitacion.verificado %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                        <i class="fas fa-user-check mr-1"></i> Llegó
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                        <i class="fas fa-user-clock mr-1"></i> Esperando
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ invitacion.fecha_creacion|date:"d/m/Y" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'carta_invitacion' invitacion.codigo_qr %}" 
+                                    class="text-green-600 hover:text-green-900 transition-colors"
+                                    title="Ver invitación">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <!-- NUEVA ACCIÓN: Reenviar email -->
+                                    <button onclick="reenviarEmail('{{ invitacion.codigo_qr }}')" 
+                                            class="text-blue-600 hover:text-blue-900 transition-colors"
+                                            title="Reenviar email">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                    {% if invitacion.estado == 'aceptada' %}
+                                        <a href="{% url 'mostrar_qr' invitacion.id %}" 
+                                           class="text-purple-600 hover:text-purple-900 transition-colors"
+                                           title="Ver código QR">
+                                            <i class="fas fa-qrcode"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="px-6 py-12 text-center">
+                                <div class="text-gray-500">
+                                    <i class="fas fa-inbox text-4xl mb-4 text-gray-300"></i>
+                                    <p class="text-lg font-medium">No hay invitaciones registradas</p>
+                                    <p class="text-sm">Crea tu primera invitación para comenzar</p>
+                                    <a href="{% url 'crear_invitacion' %}" 
+                                       class="inline-block mt-4 bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition-colors">
+                                        <i class="fas fa-plus mr-2"></i>Crear Primera Invitación
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- NUEVA SECCIÓN: Barra de acciones masivas -->
+            <div id="actionBar" class="hidden bg-gray-50 px-6 py-3 border-t">
+                <div class="flex items-center justify-between">
+                    <span id="selectedCount" class="text-sm text-gray-600">0 invitaciones seleccionadas</span>
+                    <div class="flex space-x-2">
+                        <button onclick="enviarEmailsSeleccionados()" 
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                            <i class="fas fa-paper-plane mr-2"></i>Enviar Emails
+                        </button>
+                        <button onclick="enviarRecordatoriosSeleccionados()" 
+                                class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                            <i class="fas fa-bell mr-2"></i>Recordatorios
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Funciones existentes
+function exportarDatos() {
+    window.location.href = '{% url "exportar_csv" %}';
+}
+
+// NUEVAS FUNCIONES PARA EMAIL
+function reenviarEmail(codigoQr) {
+    if (confirm('¿Reenviar invitación por email?')) {
+        fetch(`/reenviar-por-qr/${codigoQr}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Email reenviado exitosamente', 'success');
+                location.reload();
+            } else {
+                showNotification('Error al reenviar email', 'error');
+            }
+        })
+        .catch(error => {
+            showNotification('Error de conexión', 'error');
+        });
+    }
+}
+
+function enviarRecordatorios() {
+    if (confirm('¿Enviar recordatorios a todas las invitaciones pendientes?')) {
+        fetch('/enviar-recordatorios/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            showNotification(`${data.enviados} recordatorios enviados`, 'success');
+            location.reload();
+        });
+    }
+}
+
+function enviarEmailsMasivos() {
+    if (confirm('¿Enviar emails a todas las invitaciones que no los han recibido?')) {
+        fetch('/enviar-emails-masivos/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            showNotification(`${data.enviados} emails enviados`, 'success');
+            location.reload();
+        });
+    }
+}
+
+// Funciones para selección múltiple
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.invitacion-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+    });
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('.invitacion-checkbox:checked');
+    const count = checkboxes.length;
+    const actionBar = document.getElementById('actionBar');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    if (count > 0) {
+        actionBar.classList.remove('hidden');
+        selectedCount.textContent = `${count} invitaciones seleccionadas`;
+    } else {
+        actionBar.classList.add('hidden');
+    }
+}
+
+function enviarEmailsSeleccionados() {
+    const selected = getSelectedIds();
+    if (selected.length === 0) return;
+    
+    if (confirm(`¿Enviar emails a ${selected.length} invitaciones seleccionadas?`)) {
+        fetch('/enviar-emails-seleccionados/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ invitaciones: selected })
+        })
+        .then(response => response.json())
+        .then(data => {
+            showNotification(`${data.enviados} emails enviados`, 'success');
+            location.reload();
+        });
+    }
+}
+
+function enviarRecordatoriosSeleccionados() {
+    const selected = getSelectedIds();
+    if (selected.length === 0) return;
+    
+    if (confirm(`¿Enviar recordatorios a ${selected.length} invitaciones seleccionadas?`)) {
+        fetch('/enviar-recordatorios-seleccionados/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ invitaciones: selected })
+        })
+        .then(response => response.json())
+        .then(data => {
+            showNotification(`${data.enviados} recordatorios enviados`, 'success');
+            location.reload();
+        });
+    }
+}
+
+function getSelectedIds() {
+    const checkboxes = document.querySelectorAll('.invitacion-checkbox:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
+// Funciones auxiliares
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showNotification(message, type) {
+    // Crear notificación toast
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    } text-white`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Animación de entrada existente
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.transform.hover\\:scale-105');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        }, index * 100);
+    });
+});
+
+// Actualizar estadísticas en tiempo real cada 30 segundos
+setInterval(function() {
+    fetch('/dashboard/estadisticas/')
+        .then(response => response.json())
+        .then(data => {
+            // Actualizar números sin recargar la página
+            document.querySelector('.text-blue-700 .text-3xl').textContent = data.total;
+            document.querySelector('.text-green-700 .text-3xl').textContent = data.aceptadas;
+            document.querySelector('.text-orange-500 .text-3xl').textContent = data.pendientes;
+            document.querySelector('.text-purple-700 .text-3xl').textContent = data.verificadas;
+            document.querySelector('.text-rose-600 .text-3xl').textContent = data.emails_enviados;
+        })
+        .catch(error => console.log('Error actualizando estadísticas:', error));
+}, 30000);
+</script>
+{% endblock %}

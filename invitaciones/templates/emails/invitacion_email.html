@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitación de Boda</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: normal;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .names {
+            text-align: center;
+            font-size: 32px;
+            color: #667eea;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .invitation-text {
+            text-align: center;
+            font-size: 18px;
+            line-height: 1.6;
+            margin: 30px 0;
+        }
+        .details {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .detail-item {
+            margin: 15px 0;
+            font-size: 16px;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #667eea;
+        }
+        .button {
+            display: block;
+            width: 250px;
+            margin: 30px auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #666;
+            font-size: 14px;
+        }
+        .heart {
+            color: #e74c3c;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>¡Estás Invitado/a!</h1>
+            <div class="heart">💕</div>
+        </div>
+        
+        <div class="content">
+            <p class="invitation-text">
+                Querido/a <strong>{{ invitacion.nombre_invitado }}</strong>,
+            </p>
+            
+            <p class="invitation-text">
+                Con gran alegría te invitamos a celebrar nuestro matrimonio
+            </p>
+            
+            <div class="names">
+                {{ boda.nombre_novia }} & {{ boda.nombre_novio }}
+            </div>
+            
+            <div class="details">
+                <div class="detail-item">
+                    <span class="detail-label">📅 Fecha:</span>
+                    {{ boda.fecha|date:"d/m/Y" }}
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">⏰ Hora:</span>
+                    {{ boda.hora|time:"H:i" }}
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">📍 Lugar:</span>
+                    {{ boda.direccion }}
+                </div>
+                
+                {% if boda.vestimenta %}
+                <div class="detail-item">
+                    <span class="detail-label">👔 Vestimenta:</span>
+                    {{ boda.vestimenta }}
+                </div>
+                {% endif %}
+                
+                {% if invitacion.numero_invitados > 1 %}
+                <div class="detail-item">
+                    <span class="detail-label">👥 Invitados:</span>
+                    Puedes traer {{ invitacion.numero_invitados|add:"-1" }} acompañante{{ invitacion.numero_invitados|add:"-1"|pluralize }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <p class="invitation-text">
+                Tu presencia hará que este día sea aún más especial para nosotros.
+            </p>
+            
+            <a href="{{ invitacion_url }}" class="button">
+                Ver Invitación Completa
+            </a>
+            
+            <p style="text-align: center; margin-top: 30px; font-size: 14px; color: #666;">
+                Por favor confirma tu asistencia antes del {{ boda.fecha_limite_respuesta|date:"d/m/Y" }}
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>¡Esperamos verte en nuestro gran día!</p>
+            <div class="heart">💕</div>
+        </div>
+    </div>
+</body>
+</html>
