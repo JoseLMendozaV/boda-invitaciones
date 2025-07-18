@@ -25,33 +25,6 @@ logger = logging.getLogger(__name__)
 
 #########################################
 
-
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from datetime import timedelta
-import json
-
-
-
-
-#########################################
-
-
-
-
-
-
-
-
-
-
-
-
 def generar_codigo_qr(invitacion_id):
     """Genera un código QR único para la invitación"""
     # Crear un hash único basado en el ID de la invitación
@@ -107,187 +80,149 @@ def crear_invitacion(request):
     
     return render(request, 'crear_invitacion.html')
 
-def ver_invitacion(request, token):
+def ver_invitacion(request, invitacion_id):
+    """Vista para mostrar la carta de invitación - Pública para invitados"""
+    invitacion = get_object_or_404(Invitacion, id=invitacion_id)
+    
+    # Obtener configuración global de la boda
     try:
-        # Buscar por token QR o por ID
-        invitacion = Invitacion.objects.get(qr_code=token)
-    except Invitacion.DoesNotExist:
-        try:
-            # Intentar buscar por ID si el token es numérico
-            invitacion = Invitacion.objects.get(id=int(token))
-        except (Invitacion.DoesNotExist, ValueError):
-            messages.error(request, 'Invitación no encontrada')
-            return redirect('invitaciones:dashboard')
+        config_boda = ConfiguracionBoda.objects.first()
+    except:
+        config_boda = None
     
-    configuracion = ConfiguracionBoda.objects.first()
-    
-    context = {
+    return render(request, 'carta_invitacion.html', {
         'invitacion': invitacion,
-        'configuracion': configuracion,
-    }
-    
-    return render(request, 'ver_invitacion.html', context)
-
-# Reemplaza tu vista responder_invitacion con esta versión corregida
-
-def responder_invitacion(request, codigo_qr):  # ← Parámetro correcto: codigo_qr
-    """Vista para que los invitados respondan a la invitación"""
-    try:
-        # Buscar la invitación por codigo_qr
-        invitacion = Invitacion.objects.get(codigo_qr=codigo_qr)
-    except Invitacion.DoesNotExist:
-        messages.error(request, 'Invitación no encontrada.')
-        return redirect('verificar_qr')  # o la URL que uses para verificar
-    
-    if request.method == 'POST':
-        # Obtener los datos del formulario
-        respuesta = request.POST.get('respuesta')  # 'aceptada' o 'rechazada'
-        numero_acompanantes = int(request.POST.get('numero_acompanantes', 0))
-        mensaje_personal = request.POST.get('mensaje_personal', '')
-        
-        # Actualizar la invitación
-        if respuesta == 'aceptada':
-            invitacion.estado = 'aceptada'
-        elif respuesta == 'rechazada':
-            invitacion.estado = 'rechazada'
-        else:
-            messages.error(request, 'Respuesta inválida')
-            return render(request, 'responder_invitacion.html', {'invitacion': invitacion})
-        
-        # Si acepta, validar número de acompañantes
-        if respuesta == 'aceptada':
-            if numero_acompanantes > invitacion.numero_invitados - 1:  # -1 porque el titular cuenta
-                messages.error(
-                    request, 
-                    f'No puedes traer más de {invitacion.numero_invitados - 1} acompañantes'
-                )
-                return render(request, 'responder_invitacion.html', {'invitacion': invitacion})
-        
-        # Guardar los cambios
-        invitacion.fecha_respuesta = timezone.now()
-        invitacion.save()
-        
-        # Enviar confirmación por email
-        from .utils import enviar_confirmacion_respuesta
-        if enviar_confirmacion_respuesta(invitacion):
-            messages.success(
-                request, 
-                '¡Respuesta guardada! Te hemos enviado una confirmación por email.'
-            )
-        else:
-            messages.success(request, 'Respuesta guardada correctamente.')
-        
-        # Redirigir a la carta de invitación o página de confirmación
-        return redirect('carta_invitacion', codigo_qr=codigo_qr)
-    
-    # GET request - mostrar el formulario
-    return render(request, 'responder_invitacion.html', {
-        'invitacion': invitacion
+        'config_boda': config_boda
     })
 
+# Vista mejorada para responder invitación (opcional)
+def responder_invitacion(request, invitacion_id):
+    """Vista para que el invitado responda a la invitación - Pública"""
+    invitacion = get_object_or_404(Invitacion, id=invitacion_id)
+    
+    if request.method == 'POST':
+        respuesta = request.POST.get('respuesta')
+        
+        if respuesta in ['aceptada', 'rechazada']:
+            invitacion.estado = respuesta
+            invitacion.fecha_respuesta = timezone.now()
+            
+            if respuesta == 'aceptada':
+                # Generar código QR solo si acepta
+                invitacion.codigo_qr = generar_codigo_qr(invitacion.id)
+            
+            invitacion.save()
+            messages.success(request, 'Respuesta enviada exitosamente')
+            
+            if respuesta == 'aceptada':
+                return redirect('mostrar_qr', invitacion_id=invitacion.id)
+        
+        return redirect('ver_invitacion', invitacion_id=invitacion.id)
+    
+    return render(request, 'responder_invitacion.html', {'invitacion': invitacion})
+
 def mostrar_qr(request, invitacion_id):
-    """Vista para mostrar el código QR de una invitación"""
-    try:
-        invitacion = Invitacion.objects.get(id=invitacion_id)
-    except Invitacion.DoesNotExist:
-        messages.error(request, 'Invitación no encontrada.')
-        return redirect('dashboard')
+    """Vista para mostrar el código QR generado - Pública para invitados"""
+    invitacion = get_object_or_404(Invitacion, id=invitacion_id, estado='aceptada')
     
-    context = {
+    # Generar imagen QR
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(invitacion.codigo_qr)
+    qr.make(fit=True)
+    
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    # Convertir a base64 para mostrar en HTML
+    buffer = BytesIO()
+    img.save(buffer, format='PNG')
+    img_str = base64.b64encode(buffer.getvalue()).decode()
+    
+    return render(request, 'mostrar_qr.html', {
         'invitacion': invitacion,
-    }
-    
-    return render(request, 'mostrar_qr.html', context)
+        'qr_image': img_str
+    })
 
 @login_required
 def verificar_qr(request):
-    """Vista para verificar códigos QR - VERSION DEBUG"""
-    print(f"DEBUG: Método de request: {request.method}")
-    
+    """Vista para verificar código QR en la boda - Solo usuarios autenticados"""
     if request.method == 'POST':
-        codigo_qr = request.POST.get('codigo_qr', '').strip()
-        print(f"DEBUG: Código QR recibido: '{codigo_qr}'")
+        codigo_qr = request.POST.get('codigo_qr')
         
-        if codigo_qr:
-            try:
-                invitacion = Invitacion.objects.get(codigo_qr=codigo_qr)
-                print(f"DEBUG: Invitación encontrada para verificación: {invitacion.nombre_invitado}")
-                
-                # Marcar como verificado (llegó a la boda)
-                invitacion.verificado = True
-                invitacion.fecha_verificacion = timezone.now()
-                invitacion.save()
-                
-                messages.success(
-                    request, 
-                    f'¡Bienvenido/a {invitacion.nombre_invitado}! Disfruta la celebración.'
-                )
-                return redirect('carta_invitacion', codigo_qr=codigo_qr)
-                
-            except Invitacion.DoesNotExist:
-                print("DEBUG: Código QR no encontrado en verificación")
-                messages.error(request, 'Código QR no válido o invitación no encontrada.')
-        else:
-            print("DEBUG: Código QR vacío")
-            messages.error(request, 'Por favor ingresa un código QR válido.')
+        try:
+            invitacion = Invitacion.objects.get(codigo_qr=codigo_qr, estado='aceptada')
+            
+            if invitacion.verificado:
+                return JsonResponse({
+                    'success': False,
+                    'mensaje': 'Este código QR ya fue verificado anteriormente'
+                })
+            
+            invitacion.verificado = True
+            invitacion.fecha_verificacion = timezone.now()
+            invitacion.save()
+            
+            return JsonResponse({
+                'success': True,
+                'mensaje': f'Bienvenido {invitacion.nombre_invitado}!',
+                'invitado': invitacion.nombre_invitado,
+                'numero_invitados': invitacion.numero_invitados
+            })
+            
+        except Invitacion.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'mensaje': 'Código QR no válido'
+            })
     
-    # Listar todas las invitaciones para debug
-    invitaciones = Invitacion.objects.all()
-    print(f"DEBUG: Total de invitaciones en BD: {invitaciones.count()}")
-    for inv in invitaciones:
-        print(f"DEBUG: Invitación - ID: {inv.id}, Código QR: {inv.codigo_qr}, Nombre: {inv.nombre_invitado}")
-    
-    return render(request, 'verificar_qr.html', {'debug_invitaciones': invitaciones})
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from datetime import timedelta
-import json
+    return render(request, 'verificar_qr.html')
 
 @login_required
 def dashboard(request):
-    """Vista del dashboard con estadísticas completas"""
-    from .utils import obtener_estadisticas_invitaciones
+    """Dashboard para ver estadísticas de invitaciones - Solo usuarios autenticados"""
     
-    invitaciones = Invitacion.objects.all().order_by('-fecha_creacion')
-    estadisticas = obtener_estadisticas_invitaciones()
-    
-    # Estadísticas de emails
-    emails_enviados = Invitacion.objects.filter(email_enviado=True).count()
-    invitaciones_sin_email = Invitacion.objects.filter(email_enviado=False).count()
-    
-    # Recordatorios pendientes (invitaciones sin respuesta por más de 7 días)
-    fecha_limite = timezone.now() - timedelta(days=7)
-    recordatorios_pendientes = Invitacion.objects.filter(
-        estado='pendiente',  # Usar 'estado' en lugar de 'ha_respondido'
-        fecha_creacion__lt=fecha_limite
-    ).count()
-    
-    # Calcular porcentajes
-    total = estadisticas['total']
-    porcentaje_emails = round((emails_enviados / total * 100) if total > 0 else 0, 1)
-    
-    # Porcentaje de verificados sobre los que confirmaron asistencia
-    aceptadas = estadisticas['asistiran']
+    # Estadísticas básicas
+    total_invitaciones = Invitacion.objects.count()
+    aceptadas = Invitacion.objects.filter(estado='aceptada').count()
+    rechazadas = Invitacion.objects.filter(estado='rechazada').count()
+    pendientes = Invitacion.objects.filter(estado='pendiente').count()
     verificadas = Invitacion.objects.filter(verificado=True).count()
-    porcentaje_verificadas = round((verificadas / aceptadas * 100) if aceptadas > 0 else 0, 1)
+    
+    # Calcular porcentajes para las barras de progreso
+    porcentaje_confirmadas = 0
+    if total_invitaciones > 0:
+        porcentaje_confirmadas = round((aceptadas / total_invitaciones) * 100, 1)
+    
+    porcentaje_verificadas = 0
+    if aceptadas > 0:
+        porcentaje_verificadas = round((verificadas / aceptadas) * 100, 1)
+    
+    # Calcular total de invitados (suma de numero_invitados de las aceptadas)
+    total_invitados_confirmados = Invitacion.objects.filter(
+        estado='aceptada'
+    ).aggregate(
+        total=models.Sum('numero_invitados')
+    )['total'] or 0
+    
+    # Invitaciones ordenadas por fecha de creación (más recientes primero)
+    invitaciones = Invitacion.objects.all().order_by('-fecha_creacion')
     
     context = {
-        'invitaciones': invitaciones,
-        'total_invitaciones': estadisticas['total'],
-        'aceptadas': estadisticas['asistiran'],
-        'pendientes': estadisticas['pendientes'],
+        # Estadísticas básicas
+        'total_invitaciones': total_invitaciones,
+        'aceptadas': aceptadas,
+        'rechazadas': rechazadas,
+        'pendientes': pendientes,
         'verificadas': verificadas,
-        'emails_enviados': emails_enviados,
-        'porcentaje_confirmadas': estadisticas['porcentaje_respuesta'],
+        
+        # Porcentajes para las barras de progreso
+        'porcentaje_confirmadas': porcentaje_confirmadas,
         'porcentaje_verificadas': porcentaje_verificadas,
-        'porcentaje_emails': porcentaje_emails,
-        'invitaciones_sin_email': invitaciones_sin_email,
-        'recordatorios_pendientes': recordatorios_pendientes,
+        
+        # Estadísticas adicionales
+        'total_invitados_confirmados': total_invitados_confirmados,
+        
+        # Lista de invitaciones
+        'invitaciones': invitaciones,
     }
     
     return render(request, 'dashboard.html', context)
@@ -386,233 +321,3 @@ def reenviar_invitacion(request, invitacion_id):
         logger.error(f'Error inesperado reenviando invitación {invitacion_id}: {str(e)}')
     
     return redirect('dashboard')  # o donde tengas tu lista de invitaciones
-
-
-
-@login_required
-@require_POST
-def reenviar_invitacion_ajax(request, invitacion_id):
-    """Vista AJAX para reenviar invitación"""
-    try:
-        invitacion = Invitacion.objects.get(id=invitacion_id)
-        
-        if enviar_invitacion_email(invitacion):
-            # Marcar como email enviado
-            invitacion.email_enviado = True
-            invitacion.fecha_ultimo_email = timezone.now()
-            invitacion.save()
-            
-            return JsonResponse({
-                'success': True,
-                'message': f'Email reenviado a {invitacion.email}'
-            })
-        else:
-            return JsonResponse({
-                'success': False,
-                'message': 'Error al enviar email'
-            })
-            
-    except Invitacion.DoesNotExist:
-        return JsonResponse({
-            'success': False,
-            'message': 'Invitación no encontrada'
-        })
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': f'Error inesperado: {str(e)}'
-        })
-    
-
-
-
-
-@login_required
-@require_POST
-def enviar_recordatorios(request):
-    """Enviar recordatorios a invitaciones pendientes"""
-    # Buscar invitaciones pendientes de más de 7 días
-    fecha_limite = timezone.now() - timedelta(days=7)
-    invitaciones_pendientes = Invitacion.objects.filter(
-        estado='pendiente',
-        fecha_creacion__lt=fecha_limite
-    )
-    
-    enviados = 0
-    for invitacion in invitaciones_pendientes:
-        if enviar_recordatorio_email(invitacion):
-            enviados += 1
-    
-    return JsonResponse({
-        'success': True,
-        'enviados': enviados,
-        'total': invitaciones_pendientes.count()
-    })
-
-@login_required
-@require_POST
-def enviar_emails_masivos(request):
-    """Enviar emails a todas las invitaciones que no los han recibido"""
-    invitaciones_sin_email = Invitacion.objects.filter(email_enviado=False)
-    
-    enviados = 0
-    for invitacion in invitaciones_sin_email:
-        if enviar_invitacion_email(invitacion):
-            invitacion.email_enviado = True
-            invitacion.fecha_ultimo_email = timezone.now()
-            invitacion.save()
-            enviados += 1
-    
-    return JsonResponse({
-        'success': True,
-        'enviados': enviados,
-        'total': invitaciones_sin_email.count()
-    })
-
-
-
-@login_required
-@require_POST
-@csrf_exempt
-def enviar_emails_seleccionados(request):
-    """Enviar emails a invitaciones seleccionadas"""
-    data = json.loads(request.body)
-    invitaciones_ids = data.get('invitaciones', [])
-    
-    invitaciones = Invitacion.objects.filter(id__in=invitaciones_ids)
-    
-    enviados = 0
-    for invitacion in invitaciones:
-        if enviar_invitacion_email(invitacion):
-            invitacion.email_enviado = True
-            invitacion.fecha_ultimo_email = timezone.now()
-            invitacion.save()
-            enviados += 1
-    
-    return JsonResponse({
-        'success': True,
-        'enviados': enviados,
-        'total': len(invitaciones_ids)
-    })
-
-@login_required
-@require_POST
-@csrf_exempt
-def enviar_recordatorios_seleccionados(request):
-    """Enviar recordatorios a invitaciones seleccionadas"""
-    data = json.loads(request.body)
-    invitaciones_ids = data.get('invitaciones', [])
-    
-    invitaciones = Invitacion.objects.filter(id__in=invitaciones_ids)
-    
-    enviados = 0
-    for invitacion in invitaciones:
-        if enviar_recordatorio_email(invitacion):
-            enviados += 1
-    
-    return JsonResponse({
-        'success': True,
-        'enviados': enviados,
-        'total': len(invitaciones_ids)
-    })
-
-@login_required
-def dashboard_estadisticas(request):
-    """API para actualizar estadísticas en tiempo real"""
-    from .utils import obtener_estadisticas_invitaciones
-    
-    estadisticas = obtener_estadisticas_invitaciones()
-    emails_enviados = Invitacion.objects.filter(email_enviado=True).count()
-    verificadas = Invitacion.objects.filter(verificado=True).count()
-    
-    return JsonResponse({
-        'total': estadisticas['total'],
-        'aceptadas': estadisticas['asistiran'],
-        'pendientes': estadisticas['pendientes'],
-        'verificadas': verificadas,
-        'emails_enviados': emails_enviados,
-    })
-
-def carta_invitacion(request, codigo_qr):
-    """Vista para mostrar la carta de invitación - VERSION DEBUG"""
-    print(f"DEBUG: Buscando invitación con codigo_qr: {codigo_qr}")
-    
-    try:
-        invitacion = Invitacion.objects.get(codigo_qr=codigo_qr)
-        print(f"DEBUG: Invitación encontrada: {invitacion.nombre_invitado}")
-    except Invitacion.DoesNotExist:
-        print("DEBUG: Invitación NO encontrada")
-        messages.error(request, f'Invitación con código {codigo_qr} no encontrada.')
-        return redirect('dashboard')
-    except Exception as e:
-        print(f"DEBUG: Error inesperado: {e}")
-        messages.error(request, f'Error al buscar invitación: {str(e)}')
-        return redirect('dashboard')
-    
-    # Obtener configuración de la boda
-    try:
-        from .models import ConfiguracionBoda
-        boda = ConfiguracionBoda.objects.first()
-        print(f"DEBUG: Configuración de boda: {boda}")
-    except Exception as e:
-        print(f"DEBUG: Error obteniendo configuración de boda: {e}")
-        boda = None
-    
-    context = {
-        'invitacion': invitacion,
-        'boda': boda,
-    }
-    
-    print(f"DEBUG: Contexto para template: {context}")
-    
-    return render(request, 'carta_invitacion.html', context)
-
-
-def exportar_csv(request):
-    """Vista para exportar invitaciones a CSV"""
-    import csv
-    from django.http import HttpResponse
-    
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="invitaciones_boda.csv"'
-    
-    writer = csv.writer(response)
-    
-    # Escribir encabezados
-    writer.writerow([
-        'Nombre',
-        'Email', 
-        'Teléfono',
-        'Número de Invitados',
-        'Estado',
-        'Verificado',
-        'Fecha Creación',
-        'Fecha Respuesta'
-    ])
-    
-    # Escribir datos
-    for invitacion in Invitacion.objects.all():
-        writer.writerow([
-            invitacion.nombre_invitado,
-            invitacion.email,
-            invitacion.telefono or '',
-            invitacion.numero_invitados,
-            invitacion.estado,
-            'Sí' if invitacion.verificado else 'No',
-            invitacion.fecha_creacion.strftime('%d/%m/%Y %H:%M') if invitacion.fecha_creacion else '',
-            invitacion.fecha_respuesta.strftime('%d/%m/%Y %H:%M') if invitacion.fecha_respuesta else '',
-        ])
-    
-    return response
-
-# Vista simple para testing
-def test_invitacion(request):
-    """Vista de prueba para verificar que todo funciona"""
-    invitaciones = Invitacion.objects.all()
-    
-    context = {
-        'invitaciones': invitaciones,
-        'total': invitaciones.count()
-    }
-    
-    return render(request, 'test_invitacion.html', context)

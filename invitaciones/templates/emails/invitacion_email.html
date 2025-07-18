@@ -5,155 +5,396 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invitación de Boda</title>
     <style>
-        body {
-            font-family: 'Georgia', serif;
-            background-color: #f9f9f9;
+        /* Reset y estilos base */
+        * {
             margin: 0;
-            padding: 20px;
-            color: #333;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .container {
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: #f8f9fa;
+            color: #2d5016;
+            line-height: 1.6;
+        }
+
+        /* Container principal */
+        .email-container {
             max-width: 600px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 15px;
             overflow: hidden;
+            box-shadow: 0 10px 30px rgba(45, 80, 22, 0.15);
         }
+
+        /* Header con degradado */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c59 50%, #2d5016 100%);
             padding: 40px 20px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(-50px) translateY(-50px); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
         .header h1 {
-            margin: 0;
-            font-size: 28px;
-            font-weight: normal;
+            color: #ffffff;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: 300;
+            letter-spacing: 2px;
         }
+
+        .header .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1em;
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+
+        /* Decoración de corazones */
+        .hearts {
+            margin: 20px 0;
+            font-size: 1.5em;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Contenido principal */
         .content {
             padding: 40px 30px;
+            background-color: #ffffff;
         }
-        .names {
+
+        .greeting {
+            font-size: 1.3em;
+            color: #2d5016;
+            margin-bottom: 25px;
             text-align: center;
-            font-size: 32px;
-            color: #667eea;
-            margin: 20px 0;
-            font-weight: bold;
+            font-weight: 600;
         }
+
         .invitation-text {
+            font-size: 1.1em;
+            color: #2d5016;
             text-align: center;
-            font-size: 18px;
-            line-height: 1.6;
-            margin: 30px 0;
+            margin-bottom: 35px;
+            line-height: 1.8;
+            padding: 0 10px;
         }
-        .details {
-            background-color: #f8f9fa;
-            padding: 25px;
+
+        /* Información de la boda */
+        .wedding-info {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            border-left: 5px solid #4a7c59;
+        }
+
+        .wedding-info h3 {
+            color: #2d5016;
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
             border-radius: 8px;
+        }
+
+        .info-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            color: #4a7c59;
+            flex-shrink: 0;
+        }
+
+        .info-text {
+            color: #2d5016;
+            font-weight: 500;
+        }
+
+        /* Botones */
+        .buttons-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1em;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a7c59 0%, #2d5016 100%);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(45, 80, 22, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #2d5016;
+            border: 2px solid #4a7c59;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4a7c59;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        /* QR Code */
+        .qr-section {
+            text-align: center;
+            margin: 35px 0;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e8 100%);
+            border-radius: 12px;
+        }
+
+        .qr-title {
+            color: #2d5016;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .qr-description {
+            color: #4a7c59;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c59 100%);
+            color: #ffffff;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .footer-message {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .footer-names {
+            font-size: 1.3em;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* Separadores decorativos */
+        .divider {
+            text-align: center;
             margin: 30px 0;
         }
-        .detail-item {
-            margin: 15px 0;
-            font-size: 16px;
+
+        .divider::after {
+            content: '♥ ♥ ♥';
+            color: #4a7c59;
+            font-size: 1.2em;
+            letter-spacing: 10px;
         }
-        .detail-label {
-            font-weight: bold;
-            color: #667eea;
-        }
-        .button {
-            display: block;
-            width: 250px;
-            margin: 30px auto;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-decoration: none;
-            padding: 15px 25px;
-            border-radius: 25px;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #f8f9fa;
-            color: #666;
-            font-size: 14px;
-        }
-        .heart {
-            color: #e74c3c;
-            font-size: 20px;
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+
+            .wedding-info {
+                padding: 20px;
+            }
+
+            .btn {
+                display: block;
+                margin: 10px auto;
+                max-width: 250px;
+            }
+
+            .info-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .info-icon {
+                margin-right: 0;
+                margin-bottom: 5px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="email-container">
+        <!-- Header -->
         <div class="header">
-            <h1>¡Estás Invitado/a!</h1>
-            <div class="heart">💕</div>
+            <div class="header-content">
+                <h1>¡Nos Casamos!</h1>
+                <div class="hearts">♥ ♥ ♥</div>
+                <p class="subtitle">Tienes una invitación especial</p>
+            </div>
         </div>
-        
+
+        <!-- Contenido Principal -->
         <div class="content">
-            <p class="invitation-text">
-                Querido/a <strong>{{ invitacion.nombre_invitado }}</strong>,
-            </p>
-            
-            <p class="invitation-text">
-                Con gran alegría te invitamos a celebrar nuestro matrimonio
-            </p>
-            
-            <div class="names">
-                {{ boda.nombre_novia }} & {{ boda.nombre_novio }}
+            <div class="greeting">
+                ¡Hola {{ invitacion.nombre_invitado }}!
             </div>
-            
-            <div class="details">
-                <div class="detail-item">
-                    <span class="detail-label">📅 Fecha:</span>
-                    {{ boda.fecha|date:"d/m/Y" }}
-                </div>
+
+            <p class="invitation-text">
+                Con gran alegría y emoción, queremos invitarte a celebrar uno de los días más importantes de nuestras vidas. 
+                Será un honor tenerte presente en nuestra boda, compartiendo este momento tan especial con nosotros.
+            </p>
+
+            <!-- Información de la boda -->
+            <div class="wedding-info">
+                <h3>Detalles de la Celebración</h3>
                 
-                <div class="detail-item">
-                    <span class="detail-label">⏰ Hora:</span>
-                    {{ boda.hora|time:"H:i" }}
+                {% if boda %}
+                <div class="info-item">
+                    <div class="info-icon">📅</div>
+                    <div class="info-text">
+                        <strong>Fecha:</strong> {{ boda.fecha_boda_default|date:"d F Y" }}
+                    </div>
                 </div>
-                
-                <div class="detail-item">
-                    <span class="detail-label">📍 Lugar:</span>
-                    {{ boda.direccion }}
+
+                <div class="info-item">
+                    <div class="info-icon">🕐</div>
+                    <div class="info-text">
+                        <strong>Hora:</strong> {{ boda.hora_boda_default|time:"H:i" }}
+                    </div>
                 </div>
-                
-                {% if boda.vestimenta %}
-                <div class="detail-item">
-                    <span class="detail-label">👔 Vestimenta:</span>
-                    {{ boda.vestimenta }}
+
+                <div class="info-item">
+                    <div class="info-icon">📍</div>
+                    <div class="info-text">
+                        <strong>Lugar:</strong> {{ boda.ubicacion_default }}
+                    </div>
+                </div>
+
+                {% if boda.direccion %}
+                <div class="info-item">
+                    <div class="info-icon">🗺️</div>
+                    <div class="info-text">
+                        <strong>Dirección:</strong> {{ boda.direccion_default }}
+                    </div>
                 </div>
                 {% endif %}
-                
-                {% if invitacion.numero_invitados > 1 %}
-                <div class="detail-item">
-                    <span class="detail-label">👥 Invitados:</span>
-                    Puedes traer {{ invitacion.numero_invitados|add:"-1" }} acompañante{{ invitacion.numero_invitados|add:"-1"|pluralize }}
+
+                {% if boda.lugar_recepcion %}
+                <div class="info-item">
+                    <div class="info-icon">🎉</div>
+                    <div class="info-text">
+                        <strong>Recepción:</strong> {{ boda.ubicacion_default }}
+                    </div>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="info-item">
+                    <div class="info-icon">💕</div>
+                    <div class="info-text">
+                        <strong>¡Nos casamos!</strong> Los detalles se confirmarán pronto.
+                    </div>
                 </div>
                 {% endif %}
             </div>
-            
+
+            <div class="divider"></div>
+
+            <!-- Botones de acción -->
+            <div class="buttons-container">
+                <a href="http://127.0.0.1:8000/invitacion/{{ invitacion.id }}/" class="btn btn-primary">
+                    Ver Invitación Completa
+                </a>
+                
+                <a href="{% url 'responder_invitacion' invitacion_id=invitacion.id %}" class="btn btn-secondary">
+                    Confirmar Asistencia
+                </a>
+            </div>
+
+            <!-- Sección QR -->
+            <div class="qr-section">
+                <div class="qr-title">Código QR de tu Invitación</div>
+                <p class="qr-description">
+                    Guarda este código para acceso rápido a tu invitación
+                </p>
+                <a href="{% url 'mostrar_qr' invitacion_id=invitacion.id %}" class="btn btn-secondary">
+                    Ver Código QR
+                </a>
+            </div>
+
+            <div class="divider"></div>
+
             <p class="invitation-text">
-                Tu presencia hará que este día sea aún más especial para nosotros.
-            </p>
-            
-            <a href="{{ invitacion_url }}" class="button">
-                Ver Invitación Completa
-            </a>
-            
-            <p style="text-align: center; margin-top: 30px; font-size: 14px; color: #666;">
-                Por favor confirma tu asistencia antes del {{ boda.fecha_limite_respuesta|date:"d/m/Y" }}
+                Tu presencia hará que este día sea aún más especial. 
+                ¡Esperamos celebrar contigo y crear recuerdos inolvidables juntos!
             </p>
         </div>
-        
+
+        <!-- Footer -->
         <div class="footer">
-            <p>¡Esperamos verte en nuestro gran día!</p>
-            <div class="heart">💕</div>
+            <p class="footer-message">Con todo nuestro amor</p>
+            <p class="footer-names">
+                {% if boda %}
+                    {{ boda.nombre_novio }} & {{ boda.nombre_novia }}
+                {% else %}
+                    Los Novios
+                {% endif %}
+            </p>
         </div>
     </div>
 </body>

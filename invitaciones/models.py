@@ -27,25 +27,13 @@ class Invitacion(models.Model):
     ubicacion_maps_url = models.URLField(blank=True, null=True, help_text="URL de Google Maps", default="https://maps.app.goo.gl/9WFuwUWAHRs3yUSs9")
     fecha_boda = models.DateField(default="2026-02-21")
     hora_boda = models.TimeField(default="18:00")
-
-
-    # Nuevos campos para el sistema de emails
-    email_enviado = models.BooleanField(default=False, help_text="Si se ha enviado el email de invitación")
-    fecha_ultimo_email = models.DateTimeField(null=True, blank=True, help_text="Fecha del último email enviado")
-    numero_recordatorios = models.IntegerField(default=0, help_text="Número de recordatorios enviados")
-
-    fecha_actualizacion = models.DateTimeField(auto_now=True)
-
-
-
     
     def __str__(self):
-        return f"{self.nombre_invitado} - {self.email}"
+        return f"{self.nombre_invitado} - {self.numero_invitados} invitados"
     
     class Meta:
         verbose_name = "Invitación"
         verbose_name_plural = "Invitaciones"
-        ordering = ['-fecha_creacion']
 
 class ConfiguracionBoda(models.Model):
     """Configuración global para la boda"""

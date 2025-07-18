@@ -67,8 +67,8 @@
             <p>Hemos recibido tu respuesta para la boda de:</p>
             <h2>{{ boda.nombre_novia }} & {{ boda.nombre_novio }}</h2>
             
-            <div class="status {% if invitacion.estado == 'aceptada' %}asistira{% else %}no-asistira{% endif %}">
-                {% if invitacion.estado == 'aceptada' %}
+            <div class="status {% if invitacion.asistira %}asistira{% else %}no-asistira{% endif %}">
+                {% if invitacion.asistira %}
                     🎉 ¡Confirmas tu asistencia!
                     {% if invitacion.numero_acompanantes_confirmados > 0 %}
                         <br>Con {{ invitacion.numero_acompanantes_confirmados }} acompañante{{ invitacion.numero_acompanantes_confirmados|pluralize }}
@@ -91,7 +91,7 @@
                 <strong>Lugar:</strong> {{ boda.direccion }}
             </p>
             
-            {% if invitacion.estado == 'aceptada' %}
+            {% if invitacion.asistira %}
             <p style="color: #52c41a; font-weight: bold;">
                 ¡Te esperamos con mucha ilusión!
             </p>
