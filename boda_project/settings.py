@@ -130,10 +130,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 import os
-from dotenv import load_dotenv
 
-# Cargar variables de entorno
-load_dotenv()
 
 # Configuración de Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
