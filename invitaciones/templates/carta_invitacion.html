@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Invitación - {{ invitacion.nombre_invitado }}{% endblock %}
 
 {% block content %}
@@ -15,9 +15,14 @@
                 <!-- Aquí puedes agregar la foto de preboda -->
                 <div class="absolute inset-0 flex items-center justify-center">
                     <div class="text-center text-white">
-                        <h1 class="text-4xl md:text-6xl font-script mb-2">
+                        <h1 class="text-3xl md:text-4xl font-serif mb-2">
+                            ¡Nos Casamos!
+                        </h1>
+                        <h1 class="text-5xl md:text-7xl font-script mb-2">
                             {% if config_boda %}
-                                {{ config_boda.nombre_novio }} & {{ config_boda.nombre_novia }}
+                                 <span class="block"> {{ config_boda.nombre_novio }} </span>
+                                 <span class="block"> & </span>
+                                 <span class="block"> {{ config_boda.nombre_novia }} </span>
                             {% else %}
                                 José & Jeovana
                             {% endif %}
@@ -33,7 +38,177 @@
                 </div>
             </div>
         </div>
+<!-- musica -->
 
+
+<div class="fixed bottom-6 right-6 z-50">
+    <!-- Contenedor principal con efectos elegantes -->
+    <div class="relative group">
+        <!-- Efecto de resplandor cuando está activo -->
+        <div id="glow-effect" class="absolute inset-0 bg-green-400 rounded-full opacity-0 blur-lg transition-all duration-500 group-hover:opacity-20"></div>
+        
+        <!-- Botón principal -->
+        <div class="relative bg-gradient-to-br from-white via-green-50 to-green-100 rounded-full p-5 shadow-2xl border-2 border-green-200 hover:border-green-300 transition-all duration-300 transform hover:scale-110 hover:shadow-green-200/50">
+            <!-- Anillo decorativo -->
+            <div class="absolute inset-2 border border-green-300/30 rounded-full"></div>
+            
+            <button id="music-toggle" class="relative text-green-700 hover:text-green-800 focus:outline-none transition-colors duration-300">
+                <!-- Icono de play -->
+                <svg id="play-icon" class="w-7 h-7 drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+                
+                <!-- Icono de pause -->
+                <svg id="pause-icon" class="w-7 h-7 hidden drop-shadow-sm" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                </svg>
+            </button>
+            
+            <!-- Indicador de estado (ondas de sonido) -->
+            <div id="sound-waves" class="absolute -top-2 -right-2 hidden">
+                <div class="flex space-x-1">
+                    <div class="w-1 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <div class="w-1 h-4 bg-green-600 rounded-full animate-pulse" style="animation-delay: 0.1s;"></div>
+                    <div class="w-1 h-2 bg-green-500 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tooltip informativo -->
+        <div id="tooltip" class="absolute bottom-full right-0 mb-3 px-3 py-2 bg-green-800 text-white text-sm rounded-lg shadow-lg opacity-0 transform translate-y-2 transition-all duration-300 whitespace-nowrap">
+            <span id="tooltip-text">Reproducir música</span>
+            <!-- Flecha del tooltip -->
+            <div class="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-green-800"></div>
+        </div>
+    </div>
+    
+    <!-- Elemento de audio -->
+    <audio id="background-music" loop>
+        <source src="{% static 'audio/Skillet.mp3' %}" type="audio/mpeg">
+    </audio>
+</div>
+
+<!-- Estilos CSS adicionales para animaciones personalizadas -->
+<style>
+    @keyframes ripple {
+        0% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(2); opacity: 0; }
+    }
+    
+    .ripple-effect::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        border: 2px solid #22c55e;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        animation: ripple 1.5s infinite;
+    }
+    
+    @keyframes soundWave {
+        0%, 100% { transform: scaleY(1); }
+        50% { transform: scaleY(1.5); }
+    }
+    
+    .sound-wave-1 { animation: soundWave 1s infinite; }
+    .sound-wave-2 { animation: soundWave 1s infinite 0.1s; }
+    .sound-wave-3 { animation: soundWave 1s infinite 0.2s; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const music = document.getElementById('background-music');
+    const toggle = document.getElementById('music-toggle');
+    const playIcon = document.getElementById('play-icon');
+    const pauseIcon = document.getElementById('pause-icon');
+    const glowEffect = document.getElementById('glow-effect');
+    const soundWaves = document.getElementById('sound-waves');
+    const tooltip = document.getElementById('tooltip');
+    const tooltipText = document.getElementById('tooltip-text');
+    const container = toggle.closest('.relative');
+    
+    let isPlaying = false;
+    
+    // Mostrar/ocultar tooltip
+    container.addEventListener('mouseenter', function() {
+        tooltip.classList.remove('opacity-0', 'translate-y-2');
+        tooltip.classList.add('opacity-100', 'translate-y-0');
+    });
+    
+    container.addEventListener('mouseleave', function() {
+        tooltip.classList.add('opacity-0', 'translate-y-2');
+        tooltip.classList.remove('opacity-100', 'translate-y-0');
+    });
+    
+    // Función para crear efecto ripple
+    function createRipple() {
+        container.classList.add('ripple-effect');
+        setTimeout(() => {
+            container.classList.remove('ripple-effect');
+        }, 1500);
+    }
+    
+    // Control de reproducción
+    toggle.addEventListener('click', function() {
+        // Efecto visual al hacer clic
+        createRipple();
+        
+        if (isPlaying) {
+            music.pause();
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            glowEffect.classList.remove('opacity-30');
+            glowEffect.classList.add('opacity-0');
+            soundWaves.classList.add('hidden');
+            tooltipText.textContent = 'Reproducir música';
+            
+            // Remover clase de animación
+            container.classList.remove('animate-pulse');
+            
+        } else {
+            music.play().then(() => {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                glowEffect.classList.remove('opacity-0');
+                glowEffect.classList.add('opacity-30');
+                soundWaves.classList.remove('hidden');
+                tooltipText.textContent = 'Pausar música';
+                
+                // Agregar pulso sutil cuando está reproduciendo
+                container.classList.add('animate-pulse');
+                
+            }).catch(error => {
+                console.log('Error al reproducir:', error);
+            });
+        }
+        isPlaying = !isPlaying;
+    });
+    
+    // Efectos adicionales cuando la música se carga
+    music.addEventListener('canplay', function() {
+        console.log('Música lista para reproducir');
+    });
+    
+    // Efecto cuando termina la canción (si no está en loop)
+    music.addEventListener('ended', function() {
+        if (!music.loop) {
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            glowEffect.classList.add('opacity-0');
+            soundWaves.classList.add('hidden');
+            isPlaying = false;
+        }
+    });
+});
+</script>
+
+
+
+
+<!-- musica final -->
         <!-- Invitación principal -->
         <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
             <!-- Historia de amor -->
@@ -133,33 +308,7 @@
                     </div>
                     
                     <!-- Mapa embebido -->
-                    <div class="rounded-xl overflow-hidden h-64 shadow-inner">
-                        {% if invitacion.ubicacion_maps_url %}
-                            <!-- Extraer el embed URL de Google Maps -->
-                            <iframe 
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.7556106994896!2d-79.53384692573394!3d9.357411790790947!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8faca8f1deb1c525%3A0x597cf86df988d472!2sCol%C3%B3n%2C%20Panam%C3%A1!5e0!3m2!1ses!2s!4v1732191234567!5m2!1ses!2s"
-                                width="100%" 
-                                height="100%" 
-                                style="border:0;" 
-                                allowfullscreen="" 
-                                loading="lazy" 
-                                referrerpolicy="no-referrer-when-downgrade">
-                            </iframe>
-                        {% else %}
-                            <!-- Mapa por defecto de Colón, Panamá -->
-                            <iframe 
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.7556106994896!2d-79.53384692573394!3d9.357411790790947!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8faca8f1deb1c525%3A0x597cf86df988d472!2sCol%C3%B3n%2C%20Panam%C3%A1!5e0!3m2!1ses!2s!4v1732191234567!5m2!1ses!2s"
-                                width="100%" 
-                                height="100%" 
-                                style="border:0;" 
-                                allowfullscreen="" 
-                                loading="lazy" 
-                                referrerpolicy="no-referrer-when-downgrade">
-                            </iframe>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1973.2746706804173!2d-82.4270378!3d8.4458364!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa59d0649bc04c7%3A0x4a56db1f1b0b24e4!2sParroquia%20Sagrado%20Coraz%C3%B3n%20de%20Jes%C3%BAs!5e0!3m2!1ses-419!2spa!4v1752877645151!5m2!1ses-419!2spa" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 
             <!-- Código de vestimenta -->
             <div class="px-8 md:px-12 py-10 bg-gradient-to-br from-green-50 to-white">
