@@ -6,11 +6,12 @@
 <div class="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 py-8">
     <div class="max-w-4xl mx-auto px-4">
         <!-- Header con foto de preboda -->
+        <!-- Header con foto de preboda -->
         <div class="relative mb-8">
             <div class="h-64 md:h-80 bg-gradient-to-r from-green-600 to-green-800 rounded-t-3xl overflow-hidden relative">
-                {% if config_boda.foto_preboda_1 %}
-                    <img src="{{ config_boda.foto_preboda_1 }}" alt="Foto de preboda" class="w-full h-full object-cover">
-                {% endif %}
+
+                    <img src="{% static 'imag/foto_2.jpg' %}" alt="Foto de preboda" class="w-full h-auto">
+
                 <div class="absolute inset-0 bg-black bg-opacity-30"></div>
                 <!-- Aquí puedes agregar la foto de preboda -->
                 <div class="absolute inset-0 flex items-center justify-center">
@@ -208,9 +209,98 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-<!-- musica final -->
-        <!-- Invitación principal -->
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <!-- musica final -->
+                    <!-- Invitación principal -->
+                    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+
+                    <!-- foto aqui -->
+                    <!-- Sección de fotos con efecto papel rasgado realista -->
+            <div class="relative">
+                <!-- Foto principal con efecto rasgado -->
+                <div class="relative overflow-hidden torn-bottom-realistic">
+                    <div class="h-96 md:h-[500px] bg-gradient-to-br from-green-100 to-green-200 relative">
+                    
+                            <img src="{% static 'imag/foto_1.jpg' %}" alt="Foto de pareja" class="w-full h-auto">
+
+                            <!-- Placeholder si no hay foto -->
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-200 to-green-300">
+                                <div class="text-center text-green-800">
+                                    <div class="text-6xl mb-4">📸</div>
+                                    <p class="text-2xl font-script">Nuestra Historia</p>
+                                </div>
+                            </div>
+                    
+                        
+                        <!-- Overlay decorativo -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+                        
+                        <!-- Texto sobre la imagen -->
+                        <div class="absolute bottom-8 left-8 right-8 text-center">
+                            <h3 class="text-3xl md:text-4xl font-script text-white mb-2 drop-shadow-lg">
+                                Cada momento juntos es especial
+                            </h3>
+                            <p class="text-white text-lg drop-shadow-md opacity-90">
+                                Una historia que comenzó con una sonrisa
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Galería de fotos pequeñas con efecto rasgado -->
+                <div class="bg-white torn-top-realistic paper-texture relative z-10">
+                    <div class="px-8 md:px-12">
+                        <h3 class="text-2xl font-script text-green-800 text-center mb-8">Momentos que atesoramos</h3>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+                            <!-- Foto 1 -->
+                            <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                            
+                                    <img src="{% static 'ate/ate_1.jpg' %}" alt="Momento especial 1" class="w-full h-32 md:h-40 object-cover">
+                        
+                    
+                            
+                                <div class="absolute inset-0 bg-green-600 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
+                            </div>
+
+                            <!-- Foto 2 -->
+                            <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                            
+                                    <img src="{% static 'ate/ate_2.jpg' %}" alt="Momento especial 2" class="w-full h-32 md:h-40 object-cover">
+                            
+                                <div class="absolute inset-0 bg-green-600 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
+                            </div>
+
+                            <!-- Foto 3 -->
+                            <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                            
+                                    <img src="{% static 'ate/ate_3.jpg' %}" alt="Momento especial 3" class="w-full h-32 md:h-40 object-cover">
+                        
+                                <div class="absolute inset-0 bg-green-600 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
+                            </div>
+
+                            <!-- Foto 4 -->
+                            <div class="relative group overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                            
+                                    <img src="{% static 'ate/ate_4.jpg' %}" alt="Momento especial 4" class="w-full h-32 md:h-40 object-cover">
+                
+                                <div class="absolute inset-0 bg-green-600 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
+                            </div>
+                        </div>
+
+                        <!-- Mensaje romántico -->
+                        <div class="text-center mt-8 pb-8">
+                            <p class="text-green-700 italic text-lg max-w-2xl mx-auto">
+                                "Cada fotografía cuenta una parte de nuestra historia, cada sonrisa un capítulo de nuestro amor"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            
+
+
             <!-- Historia de amor -->
             <div class="px-8 md:px-12 py-10 text-center border-b border-green-100">
                 <h2 class="text-3xl md:text-4xl font-script text-green-800 mb-6">Una historia de amor</h2>
@@ -289,23 +379,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
 
-                <!-- Ubicación -->
-                <div class="bg-white border border-green-200 rounded-2xl p-6 mb-8">
-                    <div class="text-center mb-6">
-                        <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-map-marker-alt text-white text-2xl"></i>
-                        </div>
-                        <h4 class="text-xl font-semibold text-green-800 mb-2">Ubicación</h4>
-                        <p class="text-lg text-gray-700 mb-4">{{ invitacion.ubicacion_nombre|default:"Parroquia Sagrado Corazón de Jesús" }}</p>
-                        <p class="text-gray-600 mb-4">{{ invitacion.ubicacion_direccion|default:"Av. 9a Oeste, David, Provincia de Chiriquí 507" }}</p>
-                        
-
-                    </div>
-                  </div>  
-            <!-- Mapa iria -->
 
             <!-- Mapa profesional integrado -->
-                <div class="mt-6">
+                <div class="bg-white border border-green-200 rounded-2xl p-6 mb-8">
+                                            <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-map-marker-alt text-white text-2xl"></i>
+                        </div>
+                        <h4 class="text-center text-xl font-semibold text-green-800 mb-2">Ubicación</h4>
                     <!-- Contenedor del mapa con estilo profesional -->
                     <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-green-100">
                         
@@ -408,11 +488,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                </div>
                 
-
+                
                 <!-- Mensaje de confirmación para copiar dirección -->
-                <div id="copy-message" class="fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+                <div id="copy-message" class="fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg transition-all duration-300 z-50 opacity-0 invisible translate-x-full">
                     <div class="flex items-center text-sm">
                         <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
@@ -420,29 +500,32 @@ document.addEventListener('DOMContentLoaded', function() {
                         ¡Dirección copiada!
                     </div>
                 </div>
-                </div>
 
                 <script>
-                function copyLocation() {
-                    const locationText = "https://maps.app.goo.gl/4EwYi6cGAr9ZL5jt9";
-                    
-                    navigator.clipboard.writeText(locationText).then(function() {
-                        // Mostrar mensaje de confirmación
-                        const message = document.getElementById('copy-message');
-                        message.classList.remove('translate-x-full');
-                        message.classList.add('translate-x-0');
+                    function copyLocation() {
+                        const locationText = "https://maps.app.goo.gl/4EwYi6cGAr9ZL5jt9";
                         
-                        // Ocultar después de 3 segundos
-                        setTimeout(() => {
-                            message.classList.add('translate-x-full');
-                            message.classList.remove('translate-x-0');
-                        }, 3000);
-                    }).catch(function(err) {
-                        console.error('Error al copiar: ', err);
-                        // Fallback para navegadores que no soportan clipboard API
-                        alert('Dirección: ' + locationText);
-                    });
-                }
+                        navigator.clipboard.writeText(locationText).then(function() {
+                            // Mostrar mensaje de confirmación
+                            const message = document.getElementById('copy-message');
+                            
+                            // Mostrar
+                            message.classList.remove('opacity-0', 'invisible', 'translate-x-full');
+                            message.classList.add('opacity-100', 'visible', 'translate-x-0');
+                            
+                            // Ocultar después de 3 segundos
+                            setTimeout(() => {
+                                message.classList.add('opacity-0', 'invisible', 'translate-x-full');
+                                message.classList.remove('opacity-100', 'visible', 'translate-x-0');
+                            }, 3000);
+                        }).catch(function(err) {
+                            console.error('Error al copiar: ', err);
+                            alert('Link copiado: ' + locationText);
+                        });
+                    }
+
+
+
                 </script>
 
 
@@ -451,7 +534,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-
+            
             <!-- Código de vestimenta -->
             <div class="px-8 md:px-12 py-10 bg-gradient-to-br from-green-50 to-white">
                 <h3 class="text-3xl font-script text-green-800 text-center mb-6">Código de vestimenta</h3>
@@ -537,5 +620,62 @@ document.addEventListener('DOMContentLoaded', function() {
 .bg-gradient-to-r {
     background: linear-gradient(to right, var(--tw-gradient-stops));
 }
+
+
+
+
+/* Efecto de papel rasgado realista - Parte superior */
+.torn-top-realistic {
+    position: relative;
+    padding-top: 30px;
+}
+
+.torn-top-realistic::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0,40 C30,25 60,45 90,35 C120,25 150,50 180,40 C210,30 240,55 270,45 C300,35 330,50 360,40 C390,30 420,55 450,45 C480,35 510,50 540,40 C570,30 600,55 630,45 C660,35 690,50 720,40 C750,30 780,55 810,45 C840,35 870,50 900,40 C930,30 960,55 990,45 C1020,35 1050,50 1080,40 C1110,30 1140,55 1170,45 L1200,40 L1200,0 L0,0 Z' fill='%23ffffff'/%3E%3C/svg%3E");
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: 10;
+}
+
+/* Efecto de papel rasgado realista - Parte inferior */
+.torn-bottom-realistic {
+    position: relative;
+    padding-bottom: 30px;
+}
+
+.torn-bottom-realistic::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cpath d='M0,20 C30,35 60,15 90,25 C120,35 150,10 180,20 C210,30 240,5 270,15 C300,25 330,10 360,20 C390,30 420,5 450,15 C480,25 510,10 540,20 C570,30 600,5 630,15 C660,25 690,10 720,20 C750,30 780,5 810,15 C840,25 870,10 900,20 C930,30 960,5 990,15 C1020,25 1050,10 1080,20 C1110,30 1140,5 1170,15 L1200,20 L1200,60 L0,60 Z' fill='%23ffffff'/%3E%3C/svg%3E");
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: 10;
+}
+
+/* Textura de papel opcional */
+.paper-texture {
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.8) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(255,255,255,0.6) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(0,0,0,0.02) 0%, transparent 50%);
+}
+
+
+
+
+
+
+
+   
 </style>
 {% endblock %}
