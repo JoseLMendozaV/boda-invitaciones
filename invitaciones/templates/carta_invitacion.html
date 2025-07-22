@@ -526,6 +526,119 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+
+                    // JavaScript para controlar el video y animaciones
+
+
+
+                            document.addEventListener('DOMContentLoaded', function() {
+                            const videoSection = document.getElementById('te-esperamos-section');
+                            const backgroundVideo = document.getElementById('background-video');
+                            const titleElement = document.getElementById('title-esperamos');
+                            const subtitleElement = document.getElementById('subtitle-esperamos');
+                            const messageElement = document.getElementById('message-esperamos');
+                            const dateElement = document.getElementById('date-esperamos');
+                            
+                            let hasPlayed = false;
+                            
+                            // Configurar Intersection Observer
+                            const observerOptions = {
+                                root: null,
+                                rootMargin: '-20% 0px -20% 0px', // Se activa cuando la sección está 20% visible
+                                threshold: 0.3 // Se activa cuando al menos 30% de la sección es visible
+                            };
+                            
+                            const observer = new IntersectionObserver((entries) => {
+                                entries.forEach(entry => {
+                                    if (entry.isIntersecting && !hasPlayed) {
+                                        // Iniciar video
+                                        startVideoAndAnimations();
+                                        hasPlayed = true;
+                                    }
+                                });
+                            }, observerOptions);
+                            
+                            // Observar la sección
+                            observer.observe(videoSection);
+                            
+                            function startVideoAndAnimations() {
+                                // Mostrar y reproducir video
+                                backgroundVideo.style.opacity = '1';
+                                
+                                // Intentar reproducir el video con manejo de errores
+                                const playPromise = backgroundVideo.play();
+                                
+                                if (playPromise !== undefined) {
+                                    playPromise
+                                        .then(() => {
+                                            console.log('Video iniciado exitosamente');
+                                        })
+                                        .catch(error => {
+                                            console.log('Error al reproducir video:', error);
+                                            // Si falla la reproducción automática, mostrar el video sin sonido
+                                            backgroundVideo.muted = true;
+                                            backgroundVideo.play().catch(e => console.log('Video fallback error:', e));
+                                        });
+                                }
+                                
+                                // Activar animaciones secuenciales
+                                setTimeout(() => {
+                                    titleElement.classList.add('opacity-100', 'translate-y-0');
+                                    titleElement.classList.remove('opacity-0', 'translate-y-8');
+                                }, 200);
+                                
+                                setTimeout(() => {
+                                    subtitleElement.classList.add('opacity-100', 'translate-y-0');
+                                    subtitleElement.classList.remove('opacity-0', 'translate-y-8');
+                                }, 500);
+                                
+                                setTimeout(() => {
+                                    messageElement.classList.add('opacity-100', 'translate-y-0');
+                                    messageElement.classList.remove('opacity-0', 'translate-y-8');
+                                }, 800);
+                                
+                                setTimeout(() => {
+                                    dateElement.classList.add('opacity-100', 'translate-y-0');
+                                    dateElement.classList.remove('opacity-0', 'translate-y-8');
+                                }, 1100);
+                            }
+                            
+                            // Pausar video cuando no está visible (opcional, para mejorar rendimiento)
+                            const pauseObserver = new IntersectionObserver((entries) => {
+                                entries.forEach(entry => {
+                                    if (!entry.isIntersecting && hasPlayed) {
+                                        backgroundVideo.pause();
+                                    } else if (entry.isIntersecting && hasPlayed) {
+                                        backgroundVideo.play().catch(e => console.log('Resume error:', e));
+                                    }
+                                });
+                            }, {
+                                root: null,
+                                rootMargin: '0px',
+                                threshold: 0.1
+                            });
+                            
+                            pauseObserver.observe(videoSection);
+                            
+                            // Precargar video cuando esté cerca de ser visible
+                            const preloadObserver = new IntersectionObserver((entries) => {
+                                entries.forEach(entry => {
+                                    if (entry.isIntersecting) {
+                                        backgroundVideo.load(); // Precargar el video
+                                        preloadObserver.unobserve(videoSection); // Solo precargar una vez
+                                    }
+                                });
+                            }, {
+                                root: null,
+                                rootMargin: '200px', // Precargar cuando esté 200px antes de ser visible
+                                threshold: 0
+                            });
+                            
+                            preloadObserver.observe(videoSection);
+                        });
+
+
+
                 </script>
 
 
@@ -590,6 +703,130 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
             </div>
+
+
+
+
+
+
+                        <!-- Sección Te Esperamos con Video de Fondo -->
+            <div id="te-esperamos-section" class="relative overflow-hidden">
+                <!-- Video de fondo -->
+                <div class="absolute inset-0 z-0">
+                    <video 
+                        id="background-video"
+                        muted 
+                        loop 
+                        playsinline
+                        preload="metadata"
+                        class="w-full h-full object-cover opacity-0 transition-opacity duration-1000"
+                    >
+                        <source src="{% static 'videos/boda_video.mp4' %}" type="video/mp4">
+                        <!-- Fallback para navegadores que no soporten video -->
+                        <div class="w-full h-full bg-gradient-to-br from-green-400 via-green-500 to-green-600"></div>
+                    </video>
+                    
+                    <!-- Overlay para mejorar legibilidad del texto -->
+                    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+                    
+                    <!-- Overlay decorativo con gradiente -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30"></div>
+                </div>
+                
+                <!-- Contenido sobre el video -->
+                <div class="relative z-10 px-8 md:px-12 py-20 md:py-32 text-center text-white">
+                    <div class="max-w-4xl mx-auto">
+                        <!-- Título principal -->
+                        <h2 id="title-esperamos" class="text-4xl md:text-6xl font-script mb-6 drop-shadow-2xl opacity-0 transform translate-y-8 transition-all duration-1000">
+                            Te Esperamos
+                        </h2>
+                        
+                        <!-- Subtítulo romántico -->
+                        <p id="subtitle-esperamos" class="text-xl md:text-2xl font-light mb-8 drop-shadow-lg opacity-0 transform translate-y-8 transition-all duration-1000 delay-300">
+                            Para compartir la alegría de nuestro amor
+                        </p>
+                        
+                        <!-- Mensaje principal -->
+                        <div id="message-esperamos" class="bg-white bg-opacity-20 backdrop-blur-sm rounded-3xl p-8 md:p-12 max-w-3xl mx-auto border border-white border-opacity-30 opacity-0 transform translate-y-8 transition-all duration-1000 delay-600">
+                            <p class="text-lg md:text-xl leading-relaxed mb-6">
+                                Este día será aún más especial con tu presencia. Queremos que seas parte de este momento único 
+                                en nuestras vidas, donde dos corazones se unen para siempre.
+                            </p>
+                            
+                            <!-- Cita romántica -->
+                            <blockquote class="text-2xl md:text-3xl font-script italic mb-6 text-green-100">
+                                "El amor es la única fuerza capaz de transformar un enemigo en amigo, 
+                                y nosotros queremos transformar este día en un recuerdo eterno contigo"
+                            </blockquote>
+                            
+                            <!-- Mensaje de espera -->
+                            <div class="flex flex-col md:flex-row items-center justify-center gap-4 text-lg">
+                                <div class="flex items-center">
+                                    <svg class="w-6 h-6 mr-2 text-green-300" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    <span>Tu sonrisa</span>
+                                </div>
+                                <span class="hidden md:inline text-green-200">•</span>
+                                <div class="flex items-center">
+                                    <svg class="w-6 h-6 mr-2 text-green-300" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                    </svg>
+                                    <span>Tu alegría</span>
+                                </div>
+                                <span class="hidden md:inline text-green-200">•</span>
+                                <div class="flex items-center">
+                                    <svg class="w-6 h-6 mr-2 text-green-300" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                    </svg>
+                                    <span>Tu bendición</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Elementos decorativos flotantes -->
+                        <div class="absolute top-10 left-10 text-4xl opacity-30 animate-float">💕</div>
+                        <div class="absolute top-20 right-20 text-3xl opacity-20 animate-float-delayed">✨</div>
+                        <div class="absolute bottom-20 left-20 text-2xl opacity-25 animate-float">🌹</div>
+                        <div class="absolute bottom-10 right-10 text-3xl opacity-30 animate-float-delayed">💖</div>
+                        
+                        <!-- Cuenta regresiva o fecha destacada -->
+                        <div id="date-esperamos" class="mt-12 pt-8 border-t border-white border-opacity-30 opacity-0 transform translate-y-8 transition-all duration-1000 delay-1200">
+                            <p class="text-lg mb-4 opacity-90">Nos vemos el</p>
+                            <div class="text-3xl md:text-4xl font-semibold text-green-200">
+                                {% if config_boda %}
+                                    {{ config_boda.fecha_boda_default|date:"d \d\e F \d\e Y" }}
+                                {% else %}
+                                    21 de febrero de 2026
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Indicador de scroll (opcional) -->
+                <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+                    <div class="animate-bounce">
+                        <svg class="w-6 h-6 text-white opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             <!-- Footer romántico -->
             <div class="px-8 md:px-12 py-8 bg-green-50 text-center">
@@ -668,6 +905,82 @@ document.addEventListener('DOMContentLoaded', function() {
         radial-gradient(circle at 25% 25%, rgba(255,255,255,0.8) 0%, transparent 50%),
         radial-gradient(circle at 75% 75%, rgba(255,255,255,0.6) 0%, transparent 50%),
         radial-gradient(circle at 50% 50%, rgba(0,0,0,0.02) 0%, transparent 50%);
+}
+
+
+
+
+
+
+
+
+/* Animaciones personalizadas */
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+@keyframes float-delayed {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-15px) rotate(-3deg); }
+}
+
+.animate-float {
+    animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+    animation: float-delayed 5s ease-in-out infinite 1s;
+}
+
+/* Asegurar que el video se reproduzca correctamente */
+#background-video {
+    filter: brightness(0.8) saturate(1.2);
+    transition: opacity 1s ease-in-out;
+}
+
+/* Animaciones suaves para todos los elementos */
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .animate-float,
+    .animate-float-delayed {
+        display: none; /* Ocultar elementos decorativos en móvil */
+    }
+    
+    #te-esperamos-section {
+        min-height: 80vh; /* Altura mínima en móvil */
+    }
+}
+
+/* Efecto de resplandor sutil en hover para elementos interactivos */
+.backdrop-blur-sm:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    transition: background-color 0.3s ease;
+}
+
+/* Mejoras de rendimiento para el video */
+#background-video {
+    will-change: opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* Fallback para dispositivos con conexión lenta */
+@media (prefers-reduced-motion: reduce) {
+    .transition-all {
+        transition: none;
+    }
+    
+    .animate-bounce,
+    .animate-float,
+    .animate-float-delayed {
+        animation: none;
+    }
 }
 
 
