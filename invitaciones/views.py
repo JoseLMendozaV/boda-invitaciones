@@ -13,13 +13,16 @@ import hashlib
 
 # Agregar estos imports para emails
 from django.contrib import messages
-from .utils import enviar_invitacion_email, enviar_confirmacion_respuesta
+from .utils import enviar_invitacion_email, enviar_confirmacion_respuesta,to_wa_me_number,wa_share_link
+
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
-from .utils import enviar_invitacion_email
-import logging
+
+import logging, os
+
+from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +83,40 @@ def crear_invitacion(request):
                 messages.success(request, '¡Invitación creada! (Sin correo electrónico).')
                 logger.info(f'Invitación {invitacion.id} creada sin email')
 
+            # 👉 WhatsApp: si hay teléfono, abre WhatsApp con el mensaje listo
+            
+            if telefono:
+                # Construye un enlace público absoluto (ajusta el nombre de URL si cambia)
+                try:
+                    link_publico = request.build_absolute_uri(
+                        reverse('ver_invitacion_publica', args=[invitacion.id])
+                    )
+                except Exception:
+                    # Fallback a la vista protegida si aún no tienes una pública
+                    link_publico = request.build_absolute_uri(
+                        reverse('ver_invitacion', kwargs={'invitacion_id': invitacion.id})
+                    )
+
+                cuerpo = (
+                    f"¡Hola {invitacion.nombre_invitado}! 💍\n\n"
+                    f"Te compartimos tu invitación y tu QR:\n{link_publico}\n\n"
+                    f"Número de invitados: {invitacion.numero_invitados}\n"
+                    f"¡Te esperamos! 💚"
+                )
+
+                phone_wa = to_wa_me_number(telefono, default_country="507")
+                if phone_wa:
+                    wa_link = wa_share_link(phone_wa, cuerpo)
+                    return redirect(wa_link)  # Abre WhatsApp Web / App
+                else:
+                    messages.warning(request, 'Invitación creada, pero el teléfono no es válido para WhatsApp.')
+
+            # Si no hay teléfono o no se pudo formatear, ir al detalle
             return redirect('ver_invitacion', invitacion_id=invitacion.id)
+
+
+
+            
 
         except Exception as e:
             logger.exception(f'Error creando invitación: {e}')
