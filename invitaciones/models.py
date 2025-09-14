@@ -11,7 +11,7 @@ class Invitacion(models.Model):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nombre_invitado = models.CharField(max_length=200)
-    email = models.EmailField()
+    email = models.EmailField(blank=True, null=True)
     telefono = models.CharField(max_length=20, blank=True)
     numero_invitados = models.PositiveIntegerField(default=1)
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')

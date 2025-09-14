@@ -35,49 +35,60 @@ def generar_codigo_qr(invitacion_id):
 def crear_invitacion(request):
     """Vista para crear una nueva invitación - Solo usuarios autenticados"""
     if request.method == 'POST':
-        nombre = request.POST.get('nombre')
-        email = request.POST.get('email')
-        telefono = request.POST.get('telefono', '')
-        numero_invitados = int(request.POST.get('numero_invitados', 1))
-        
-        # Validaciones básicas
-        if not nombre or not email:
-            messages.error(request, 'El nombre y email son obligatorios')
-            return render(request, 'crear_invitacion.html')
-        
+        nombre = (request.POST.get('nombre') or '').strip()
+        email = (request.POST.get('email') or '').strip()  # ahora opcional
+        telefono = (request.POST.get('telefono') or '').strip()
+
+        # convierte con seguridad; default=1 si viene vacío o inválido
         try:
-            # Crear la invitación
+            numero_invitados = int(request.POST.get('numero_invitados', 1))
+            if numero_invitados < 1:
+                numero_invitados = 1
+        except (TypeError, ValueError):
+            numero_invitados = 1
+
+        # Validaciones básicas: solo nombre obligatorio
+        if not nombre:
+            messages.error(request, 'El nombre es obligatorio.')
+            return render(request, 'crear_invitacion.html', {
+                'prefill': {'nombre': nombre, 'email': email, 'telefono': telefono, 'numero_invitados': numero_invitados}
+            })
+
+        try:
+            # Crear la invitación (email puede ir vacío)
             invitacion = Invitacion.objects.create(
                 nombre_invitado=nombre,
-                email=email,
+                email=email or None,   # guarda NULL si viene vacío
                 telefono=telefono,
                 numero_invitados=numero_invitados
             )
-            
-            # Intentar enviar el email
-            email_enviado = enviar_invitacion_email(invitacion)
-            
-            if email_enviado:
-                messages.success(
-                    request, 
-                    f'¡Invitación creada exitosamente! Se ha enviado por email a {email}'
-                )
-                logger.info(f'Invitación {invitacion.id} creada y email enviado a {email}')
+
+            # Enviar email solo si fue proporcionado
+            if email:
+                try:
+                    email_enviado = enviar_invitacion_email(invitacion)
+                    if email_enviado:
+                        messages.success(request, f'¡Invitación creada! Email enviado a {email}.')
+                        logger.info(f'Invitación {invitacion.id} creada y email enviado a {email}')
+                    else:
+                        messages.warning(request, f'Invitación creada. No se pudo enviar el email a {email}. Puedes reintentar desde el dashboard.')
+                        logger.warning(f'Invitación {invitacion.id} creada pero email falló para {email}')
+                except Exception as mail_err:
+                    messages.warning(request, f'Invitación creada. Error al enviar email: {mail_err}')
+                    logger.exception(f'Error enviando email para invitación {invitacion.id}')
             else:
-                messages.warning(
-                    request, 
-                    f'Invitación creada, pero hubo un problema enviando el email a {email}. '
-                    f'Puedes reenviarlo desde el dashboard.'
-                )
-                logger.warning(f'Invitación {invitacion.id} creada pero email falló para {email}')
-            
+                messages.success(request, '¡Invitación creada! (Sin correo electrónico).')
+                logger.info(f'Invitación {invitacion.id} creada sin email')
+
             return redirect('ver_invitacion', invitacion_id=invitacion.id)
-            
+
         except Exception as e:
-            logger.error(f'Error creando invitación: {str(e)}')
-            messages.error(request, f'Error al crear la invitación: {str(e)}')
-            return render(request, 'crear_invitacion.html')
-    
+            logger.exception(f'Error creando invitación: {e}')
+            messages.error(request, f'Error al crear la invitación: {e}')
+            return render(request, 'crear_invitacion.html', {
+                'prefill': {'nombre': nombre, 'email': email, 'telefono': telefono, 'numero_invitados': numero_invitados}
+            })
+
     return render(request, 'crear_invitacion.html')
 
 def ver_invitacion(request, invitacion_id):
