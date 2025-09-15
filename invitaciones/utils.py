@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-
+from email.header import Header
+from email.utils import formataddr
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.conf import settings
 from django.urls import reverse
+from django.core.mail import EmailMultiAlternatives
 from .models import ConfiguracionBoda
 import logging
 
@@ -14,96 +16,83 @@ from urllib.parse import quote_plus
 
 logger = logging.getLogger(__name__)
 
-def enviar_invitacion_email(invitacion):
-    """
-    Envía un email con la invitación de boda
-    """
-    try:
-        # Obtener la configuración de la boda (asumiendo que hay una)
-        try:
-            boda = ConfiguracionBoda.objects.first()
-            if not boda:
-                logger.error('No hay configuración de boda disponible')
-                return False
-        except:
-            logger.error('Error obteniendo configuración de boda')
-            return False
-        
-        # Datos de la invitación
-        subject = f'¡Estás invitado/a a la boda de {boda.nombre_novia} y {boda.nombre_novio}!'
-        
-        # URL para ver la invitación (ajusta según tu estructura de URLs)
-        site_url = getattr(settings, 'SITE_URL', 'http://localhost:8000')
-        invitacion_url = f"{site_url}/invitacion/{invitacion.codigo_qr}/"
-        
-        # Contexto para el template
-        context = {
-            'invitacion': invitacion,
-            'invitacion_url': invitacion.id,
-            'boda': boda,
-        }
-        
-        # Renderizar el template HTML
-        html_message = render_to_string('emails/invitacion_email.html', context)
-        plain_message = strip_tags(html_message)
-        
-        # Enviar el email
-        send_mail(
-            subject=subject,
-            message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[invitacion.email],
-            html_message=html_message,
-            fail_silently=False,
-        )
-        
-        logger.info(f'Email enviado exitosamente a {invitacion.email}')
-        return True
-        
-    except Exception as e:
-        logger.error(f'Error enviando email a {invitacion.email}: {str(e)}')
+def enviar_invitacion_email(invitacion) -> bool:
+    if not invitacion.email:
         return False
 
-def enviar_confirmacion_respuesta(invitacion):
-    """
-    Envía confirmación cuando alguien responde a la invitación
-    """
-    try:
-        # Obtener la configuración de la boda
-        try:
-            boda = ConfiguracionBoda.objects.first()
-            if not boda:
-                logger.error('No hay configuración de boda disponible')
-                return False
-        except:
-            logger.error('Error obteniendo configuración de boda')
-            return False
-            
-        subject = f'Confirmación de respuesta - Boda de {boda.nombre_novia} y {boda.nombre_novio}'
-        
-        context = {
-            'invitacion': invitacion,
-            'boda': boda,
-        }
-        
-        html_message = render_to_string('emails/confirmacion_respuesta.html', context)
-        plain_message = strip_tags(html_message)
-        
-        send_mail(
-            subject=subject,
-            message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[invitacion.email],
-            html_message=html_message,
-            fail_silently=False,
-        )
-        
-        logger.info(f'Confirmación enviada a {invitacion.email}')
-        return True
-        
-    except Exception as e:
-        logger.error(f'Error enviando confirmación a {invitacion.email}: {str(e)}')
+    # Configuración de la boda
+    boda = ConfiguracionBoda.objects.first()
+    if not boda:
+        logger.error('No hay configuración de boda disponible')
         return False
+
+    # Link absoluto público (ajusta si tu ruta real es otra)
+    site_url = getattr(settings, 'SITE_URL', 'http://localhost:8000').rstrip('/')
+    link_publico = f"{site_url}/invitacion/{invitacion.codigo_qr}/"
+
+    # SUBJECT codificado en UTF-8
+    subject_text = f"Invitación a la boda de {boda.nombre_novia} y {boda.nombre_novio}"
+    subject = str(Header(subject_text, 'utf-8'))
+
+    # FROM seguro: email puro o con nombre codificado aparte
+    sender_email = settings.DEFAULT_FROM_EMAIL  # ej: "no-reply@tu-dominio.com"
+    sender_name = getattr(settings, 'DEFAULT_FROM_NAME', '')  # opcional en settings.py
+    if sender_name:
+        from_email = formataddr((str(Header(sender_name, 'utf-8')), sender_email))
+    else:
+        from_email = sender_email
+
+    # Cuerpo
+    context = {'invitacion': invitacion, 'boda': boda, 'link_publico': link_publico}
+    html_content = render_to_string('emails/invitacion_email.html', context)
+    text_content = strip_tags(html_content)
+
+    msg = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=from_email,
+        to=[invitacion.email],
+    )
+    msg.encoding = 'utf-8'  # ← clave para ñ/acentos/emoji en el cuerpo
+    msg.attach_alternative(html_content, "text/html")
+    sent = msg.send(fail_silently=False)
+    logger.info(f'Email enviado a {invitacion.email} (sent={sent})')
+    return sent > 0
+
+def enviar_confirmacion_respuesta(invitacion) -> bool:
+    if not invitacion.email:
+        return False
+
+    boda = ConfiguracionBoda.objects.first()
+    if not boda:
+        logger.error('No hay configuración de boda disponible')
+        return False
+
+    site_url = getattr(settings, 'SITE_URL', 'http://localhost:8000').rstrip('/')
+    link_publico = f"{site_url}/invitacion/{invitacion.codigo_qr}/"
+
+    subject_text = f"Confirmación de respuesta - Boda de {boda.nombre_novia} y {boda.nombre_novio}"
+    subject = str(Header(subject_text, 'utf-8'))
+
+    sender_email = settings.DEFAULT_FROM_EMAIL
+    sender_name = getattr(settings, 'DEFAULT_FROM_NAME', '')
+    from_email = formataddr((str(Header(sender_name, 'utf-8')), sender_email)) if sender_name else sender_email
+
+    context = {'invitacion': invitacion, 'boda': boda, 'link_publico': link_publico}
+    html_content = render_to_string('emails/confirmacion_respuesta.html', context)
+    text_content = strip_tags(html_content)
+
+    msg = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=from_email,
+        to=[invitacion.email],
+    )
+    msg.encoding = 'utf-8'
+    msg.attach_alternative(html_content, "text/html")
+    sent = msg.send(fail_silently=False)
+    logger.info(f'Confirmación enviada a {invitacion.email} (sent={sent})')
+    return sent > 0
 
 def obtener_estadisticas_invitaciones():
     """
