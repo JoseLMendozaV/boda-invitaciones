@@ -13,16 +13,13 @@ import hashlib
 
 # Agregar estos imports para emails
 from django.contrib import messages
-from .utils import enviar_invitacion_email, enviar_confirmacion_respuesta,to_wa_me_number,wa_share_link
-
+from .utils import enviar_invitacion_email, enviar_confirmacion_respuesta
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import render, redirect
-
-import logging, os
-
-from django.urls import reverse
+from .utils import enviar_invitacion_email
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -38,93 +35,49 @@ def generar_codigo_qr(invitacion_id):
 def crear_invitacion(request):
     """Vista para crear una nueva invitación - Solo usuarios autenticados"""
     if request.method == 'POST':
-        nombre = (request.POST.get('nombre') or '').strip()
-        email = (request.POST.get('email') or '').strip()  # ahora opcional
-        telefono = (request.POST.get('telefono') or '').strip()
-
-        # convierte con seguridad; default=1 si viene vacío o inválido
+        nombre = request.POST.get('nombre')
+        email = request.POST.get('email')
+        telefono = request.POST.get('telefono', '')
+        numero_invitados = int(request.POST.get('numero_invitados', 1))
+        
+        # Validaciones básicas
+        if not nombre or not email:
+            messages.error(request, 'El nombre y email son obligatorios')
+            return render(request, 'crear_invitacion.html')
+        
         try:
-            numero_invitados = int(request.POST.get('numero_invitados', 1))
-            if numero_invitados < 1:
-                numero_invitados = 1
-        except (TypeError, ValueError):
-            numero_invitados = 1
-
-        # Validaciones básicas: solo nombre obligatorio
-        if not nombre:
-            messages.error(request, 'El nombre es obligatorio.')
-            return render(request, 'crear_invitacion.html', {
-                'prefill': {'nombre': nombre, 'email': email, 'telefono': telefono, 'numero_invitados': numero_invitados}
-            })
-
-        try:
-            # Crear la invitación (email puede ir vacío)
+            # Crear la invitación
             invitacion = Invitacion.objects.create(
                 nombre_invitado=nombre,
-                email=email or None,   # guarda NULL si viene vacío
+                email=email,
                 telefono=telefono,
                 numero_invitados=numero_invitados
             )
-
-            # Enviar email solo si fue proporcionado
-            if email:
-                try:
-                    email_enviado = enviar_invitacion_email(invitacion)
-                    if email_enviado:
-                        messages.success(request, f'¡Invitación creada! Email enviado a {email}.')
-                        logger.info(f'Invitación {invitacion.id} creada y email enviado a {email}')
-                    else:
-                        messages.warning(request, f'Invitación creada. No se pudo enviar el email a {email}. Puedes reintentar desde el dashboard.')
-                        logger.warning(f'Invitación {invitacion.id} creada pero email falló para {email}')
-                except Exception as mail_err:
-                    messages.warning(request, f'Invitación creada. Error al enviar email: {mail_err}')
-                    logger.exception(f'Error enviando email para invitación {invitacion.id}')
-            else:
-                messages.success(request, '¡Invitación creada! (Sin correo electrónico).')
-                logger.info(f'Invitación {invitacion.id} creada sin email')
-
-            # 👉 WhatsApp: si hay teléfono, abre WhatsApp con el mensaje listo
             
-            if telefono:
-                # Construye un enlace público absoluto (ajusta el nombre de URL si cambia)
-                try:
-                    link_publico = request.build_absolute_uri(
-                        reverse('ver_invitacion_publica', args=[invitacion.id])
-                    )
-                except Exception:
-                    # Fallback a la vista protegida si aún no tienes una pública
-                    link_publico = request.build_absolute_uri(
-                        reverse('ver_invitacion', kwargs={'invitacion_id': invitacion.id})
-                    )
-
-                cuerpo = (
-                    f"¡Hola {invitacion.nombre_invitado}! 💍\n\n"
-                    f"Te compartimos tu invitación y tu QR:\n{link_publico}\n\n"
-                    f"Número de invitados: {invitacion.numero_invitados}\n"
-                    f"¡Te esperamos! 💚"
+            # Intentar enviar el email
+            email_enviado = enviar_invitacion_email(invitacion)
+            
+            if email_enviado:
+                messages.success(
+                    request, 
+                    f'¡Invitación creada exitosamente! Se ha enviado por email a {email}'
                 )
-
-                phone_wa = to_wa_me_number(telefono, default_country="507")
-                if phone_wa:
-                    wa_link = wa_share_link(phone_wa, cuerpo)
-                    return redirect(wa_link)  # Abre WhatsApp Web / App
-                else:
-                    messages.warning(request, 'Invitación creada, pero el teléfono no es válido para WhatsApp.')
-
-            # Si no hay teléfono o no se pudo formatear, ir al detalle
-            return redirect('ver_invitacion', invitacion_id=invitacion.id)
-
-
-
+                logger.info(f'Invitación {invitacion.id} creada y email enviado a {email}')
+            else:
+                messages.warning(
+                    request, 
+                    f'Invitación creada, pero hubo un problema enviando el email a {email}. '
+                    f'Puedes reenviarlo desde el dashboard.'
+                )
+                logger.warning(f'Invitación {invitacion.id} creada pero email falló para {email}')
             
-
+            return redirect('ver_invitacion', invitacion_id=invitacion.id)
+            
         except Exception as e:
-            logger.exception(f'Error creando invitación: {e}')
-            messages.error(request, f'Error al crear la invitación: {e}')
-            return render(request, 'crear_invitacion.html', {
-                'prefill': {'nombre': nombre, 'email': email, 'telefono': telefono, 'numero_invitados': numero_invitados}
-            })
-
+            logger.error(f'Error creando invitación: {str(e)}')
+            messages.error(request, f'Error al crear la invitación: {str(e)}')
+            return render(request, 'crear_invitacion.html')
+    
     return render(request, 'crear_invitacion.html')
 
 def ver_invitacion(request, invitacion_id):

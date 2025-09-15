@@ -1,6 +1,3 @@
-from __future__ import annotations
-
-
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -8,9 +5,6 @@ from django.conf import settings
 from django.urls import reverse
 from .models import ConfiguracionBoda
 import logging
-
-import re
-from urllib.parse import quote_plus
 
 logger = logging.getLogger(__name__)
 
@@ -125,23 +119,3 @@ def obtener_estadisticas_invitaciones():
         'pendientes': pendientes,
         'porcentaje_respuesta': round((respondidas / total * 100) if total > 0 else 0, 1)
     }
-
-### Enviar al telefono
-
-def to_wa_me_number(raw_phone: str, default_country="507") -> str | None:
-    # Solo dígitos con código de país, sin '+'
-    if not raw_phone:
-        return None
-    digits = re.sub(r"\D", "", raw_phone)
-    if not digits:
-        return None
-    if digits.startswith("00"):
-        digits = digits[2:]
-    # si ya viene con +507, digits ya está sin '+'
-    if digits.startswith(default_country):
-        return digits
-    # asume país por defecto
-    return f"{default_country}{digits}"
-
-def wa_share_link(phone_wa: str, text: str) -> str:
-    return f"https://wa.me/{phone_wa}?text={quote_plus(text or '')}"
