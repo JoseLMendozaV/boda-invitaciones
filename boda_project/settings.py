@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "invitaciones",
+    "anymail",
 ]
 
 MIDDLEWARE = [
@@ -151,19 +152,37 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 
-# Configuración de Email
+# ===============================
+# Email por API con Brevo (Anymail)
+# ===============================
+# Switch simple por entorno (brevo | smtp | console)
+EMAIL_PROVIDER = config("EMAIL_PROVIDER", default="brevo")
 
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="notificaciones@tudominio.com")
+SERVER_EMAIL = config("SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
 
+SITE_URL = config("SITE_URL", default="http://localhost:8000")  # para links en emails
 
+if EMAIL_PROVIDER == "brevo":
+    EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+    ANYMAIL = {
+        "BREVO_API_KEY": config("BREVO_API_KEY"),
+        # "BREVO_API_URL": "https://api.brevo.com/v3",  # opcional
+    }
 
-# Configuración de Email
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')          
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')  
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+elif EMAIL_PROVIDER == "smtp":
+    # Úsalo solo en local si tu hosting permite SMTP saliente
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = config("EMAIL_HOST", default="smtp.gmail.com")
+    EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+    EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
+    EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+    EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+
+else:  # console
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+    
 
 
 # URL del sitio para los enlaces en emails
