@@ -4,3 +4,4 @@ Pillow>=9.0
 gunicorn>=21.0.0
 whitenoise>=6.5.0
 python-decouple>=3.8
+django-anymail==13.1
