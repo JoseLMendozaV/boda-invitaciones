@@ -247,13 +247,14 @@
                     </div>
                 </div>
                 {% endif %}
-                
+                {% if user.is_authenticated %}
                 <!-- Botón de menú móvil -->
                 <div class="md:hidden">
                     <button id="mobile-menu-button" class="text-white hover:text-green-200 focus:outline-none transition-colors">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                 </div>
+                {% endif %}
             </div>
         </div>
         
