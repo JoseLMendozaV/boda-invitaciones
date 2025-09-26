@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from django.core.mail import EmailMultiAlternatives
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -10,10 +12,10 @@ logger = logging.getLogger(__name__)
 
 def enviar_invitacion_email(invitacion):
     """
-    Envía un email con la invitación de boda
+    Envía un email con la invitación de boda usando UTF-8
     """
     try:
-        # Obtener la configuración de la boda (asumiendo que hay una)
+        # Obtener la configuración de la boda
         try:
             boda = ConfiguracionBoda.objects.first()
             if not boda:
@@ -23,10 +25,10 @@ def enviar_invitacion_email(invitacion):
             logger.error('Error obteniendo configuración de boda')
             return False
         
-        # Datos de la invitación
+        # Subject con acentos y caracteres especiales
         subject = f'¡Estás invitado/a a la boda de {boda.nombre_novia} y {boda.nombre_novio}!'
         
-        # URL para ver la invitación (ajusta según tu estructura de URLs)
+        # URL para ver la invitación
         site_url = getattr(settings, 'SITE_URL', 'http://localhost:8000')
         invitacion_url = f"{site_url}/invitacion/{invitacion.codigo_qr}/"
         
@@ -37,19 +39,24 @@ def enviar_invitacion_email(invitacion):
             'boda': boda,
         }
         
-        # Renderizar el template HTML
+        # Renderizar templates
         html_message = render_to_string('emails/invitacion_email.html', context)
         plain_message = strip_tags(html_message)
         
-        # Enviar el email
-        send_mail(
+        # ¡CLAVE! Usar EmailMultiAlternatives en lugar de send_mail
+        msg = EmailMultiAlternatives(
             subject=subject,
-            message=plain_message,
+            body=plain_message,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[invitacion.email],
-            html_message=html_message,
-            fail_silently=False,
+            to=[invitacion.email]
         )
+        
+        # Configurar UTF-8 explícitamente
+        msg.encoding = 'utf-8'
+        msg.attach_alternative(html_message, "text/html")
+        
+        # Enviar
+        msg.send()
         
         logger.info(f'Email enviado exitosamente a {invitacion.email}')
         return True
@@ -73,7 +80,7 @@ def enviar_confirmacion_respuesta(invitacion):
             logger.error('Error obteniendo configuración de boda')
             return False
             
-        subject = f'Confirmación de respuesta - Boda de {boda.nombre_novia} y {boda.nombre_novio}'
+        subject = f'Confirmacion de respuesta - Boda de {boda.nombre_novia} y {boda.nombre_novio}'
         
         context = {
             'invitacion': invitacion,
