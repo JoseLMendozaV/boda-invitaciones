@@ -360,22 +360,9 @@
                 <a href="https://boda-invitaciones-production.up.railway.app/invitacion/{{ invitacion.id }}/" class="btn btn-primary">
                     Ver Invitación Completa
                 </a>
-                
-                <a href="{% url 'responder_invitacion' invitacion_id=invitacion.id %}" class="btn btn-secondary">
-                    Confirmar Asistencia
-                </a>
             </div>
 
-            <!-- Sección QR -->
-            <div class="qr-section">
-                <div class="qr-title">Código QR de tu Invitación</div>
-                <p class="qr-description">
-                    Guarda este código para acceso rápido a tu invitación
-                </p>
-                <a href="{% url 'mostrar_qr' invitacion_id=invitacion.id %}" class="btn btn-secondary">
-                    Ver Código QR
-                </a>
-            </div>
+        
 
             <div class="divider"></div>
 
