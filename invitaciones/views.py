@@ -1,6 +1,7 @@
 from django.db import models
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, FileResponse, HttpResponseForbidden, StreamingHttpResponse, HttpResponseBadRequest
+import sqlite3
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -9,8 +10,9 @@ import qrcode
 from io import BytesIO
 import base64
 import hashlib
-
-
+from django.conf import settings
+import os, subprocess
+from pathlib import Path
 # Agregar estos imports para emails
 from django.contrib import messages
 from .utils import enviar_invitacion_email, enviar_confirmacion_respuesta
@@ -22,6 +24,11 @@ from .utils import enviar_invitacion_email
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+
+from django.views.decorators.http import require_GET
+from django.contrib.admin.views.decorators import staff_member_required
 
 #########################################
 
@@ -321,3 +328,40 @@ def reenviar_invitacion(request, invitacion_id):
         logger.error(f'Error inesperado reenviando invitación {invitacion_id}: {str(e)}')
     
     return redirect('dashboard')  # o donde tengas tu lista de invitaciones
+
+
+
+
+@require_GET
+@staff_member_required  # exige login staff; abajo reforzamos superuser
+def descargar_sqlite(request):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("No autorizado: se requiere superusuario.")
+
+    db_cfg = settings.DATABASES.get("default", {})
+    engine = db_cfg.get("ENGINE", "")
+    if not engine.endswith("sqlite3"):
+        return HttpResponseBadRequest("La base de datos activa no es SQLite.")
+
+    db_path = db_cfg.get("NAME")
+    if not db_path:
+        return HttpResponseBadRequest("No se encontró la ruta del archivo SQLite en settings.")
+
+    # Normaliza ruta relativa → absoluta
+    if not os.path.isabs(db_path):
+        db_path = str(Path(settings.BASE_DIR) / db_path)
+
+    if not os.path.exists(db_path):
+        return HttpResponseBadRequest(f"No existe el archivo SQLite en: {db_path}")
+
+    def stream_dump():
+        con = sqlite3.connect(db_path)
+        try:
+            for line in con.iterdump():
+                yield (line + "\n").encode("utf-8")
+        finally:
+            con.close()
+
+    resp = StreamingHttpResponse(stream_dump(), content_type="application/sql")
+    resp["Content-Disposition"] = 'attachment; filename="sqlite_dump.sql"'
+    return resp

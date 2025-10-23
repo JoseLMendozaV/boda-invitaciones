@@ -19,10 +19,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
+from invitaciones.views import descargar_sqlite
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('', include('invitaciones.urls')),
+
+    # Descargar base de datos
+    path("db-dump/", descargar_sqlite, name="db_dump"),
 ]
 
 if settings.DEBUG:

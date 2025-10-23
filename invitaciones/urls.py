@@ -12,9 +12,7 @@ urlpatterns = [
     # Nueva URL para exportar CSV
     path('exportar-csv/', views.exportar_invitados_csv, name='exportar_csv'),
 
-
-
-
     # Nueva URL para reenviar invitaciones
     path('reenviar/<int:invitacion_id>/', views.reenviar_invitacion, name='reenviar_invitacion'),
+
 ]
