@@ -23,7 +23,7 @@ from invitaciones.views import descargar_sqlite
 
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("admin-seguridad", admin.site.urls),
     path('', include('invitaciones.urls')),
 
     # Descargar base de datos
