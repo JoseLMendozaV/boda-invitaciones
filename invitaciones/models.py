@@ -27,6 +27,7 @@ class Invitacion(models.Model):
     ubicacion_maps_url = models.URLField(blank=True, null=True, help_text="URL de Google Maps", default="https://maps.app.goo.gl/9WFuwUWAHRs3yUSs9")
     fecha_boda = models.DateField(default="2026-02-21")
     hora_boda = models.TimeField(default="18:00")
+    mesa = models.CharField(max_length=50, default="0")
     
     def __str__(self):
         return f"{self.nombre_invitado} - {self.numero_invitados} invitados"

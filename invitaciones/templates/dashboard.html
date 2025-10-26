@@ -241,6 +241,7 @@
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invitado</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invitados</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">mesa</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Llegada</th>
@@ -275,6 +276,12 @@
                                 <div class="flex items-center">
                                     <i class="fas fa-users text-gray-400 mr-2"></i>
                                     <span class="text-sm text-gray-900">{{ invitacion.numero_invitados }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <i class="fas fa-chair text-gray-400 mr-2" aria-hidden="true"></i>
+                                    <span class="text-sm text-gray-900">{{ invitacion.mesa }}</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">

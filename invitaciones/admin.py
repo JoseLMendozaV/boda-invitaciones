@@ -6,14 +6,14 @@ from .models import Invitacion, ConfiguracionBoda
 
 @admin.register(Invitacion)
 class InvitacionAdmin(admin.ModelAdmin):
-    list_display = ['nombre_invitado', 'numero_invitados', 'estado', 'verificado', 'fecha_creacion', 'acciones']
+    list_display = ['nombre_invitado', 'numero_invitados', 'mesa','estado', 'verificado', 'fecha_creacion', 'acciones']
     list_filter = ['estado', 'verificado', 'fecha_creacion']
     search_fields = ['nombre_invitado', 'email']
     readonly_fields = ['id', 'codigo_qr', 'fecha_creacion', 'fecha_respuesta', 'fecha_verificacion']
     
     fieldsets = (
         ('Información del Invitado', {
-            'fields': ('nombre_invitado', 'email', 'telefono', 'numero_invitados')
+            'fields': ('nombre_invitado', 'email', 'telefono', 'numero_invitados', 'mesa')
         }),
         ('Estado de la Invitación', {
             'fields': ('estado', 'codigo_qr', 'verificado')
