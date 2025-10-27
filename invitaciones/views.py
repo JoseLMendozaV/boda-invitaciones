@@ -172,7 +172,8 @@ def verificar_qr(request):
                 'success': True,
                 'mensaje': f'Bienvenido {invitacion.nombre_invitado}!',
                 'invitado': invitacion.nombre_invitado,
-                'numero_invitados': invitacion.numero_invitados
+                'numero_invitados': invitacion.numero_invitados,
+                'mesa': invitacion.mesa
             })
             
         except Invitacion.DoesNotExist:
